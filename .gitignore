@@ -1,0 +1,9 @@
+# PyCache
+__pycache__/
+
+# Environments
+venv
+.env
+
+# Development
+.vscode/
