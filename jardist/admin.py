@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from jardist.forms.admin_form import UserAdminForm
-from .models import Department, Role, SPK, PK, UserProfile
+from .models import Department, Role, SPK, PK, UserProfile, PKStatusAudit
 
 class AuditableAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'created_by', 'last_updated_at', 'last_updated_by']
@@ -92,6 +92,22 @@ class PKAdmin(AuditableAdmin):
     list_display = ['pk_number', 'spk', 'start_date', 'end_date', 'execution_time', 'maintenance_time'] + AuditableAdmin.list_display
     readonly_fields = AuditableAdmin.readonly_fields
 
+class PKStatusAuditAdmin(admin.ModelAdmin):
+    list_display = ['pk_instance', 'old_status', 'new_status', 'created_at', 'created_by']
+    readonly_fields = ['created_at', 'created_by']
+
+    search_fields = ['pk_instance__pk_number']
+    list_filter = ['old_status', 'new_status']
+    
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
 admin.site.unregister(Group)
 admin.site.register(Group, GroupAdmin)
 admin.site.unregister(User)
@@ -100,3 +116,4 @@ admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Role, RoleAdmin)
 admin.site.register(SPK, SPKAdmin)
 admin.site.register(PK, PKAdmin)
+admin.site.register(PKStatusAudit, PKStatusAuditAdmin)
