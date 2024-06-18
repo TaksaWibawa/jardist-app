@@ -24,11 +24,28 @@ class PKForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        spk_id = kwargs.pop('spk_id', None)
         is_create_page = kwargs.pop('is_create_page', False)
         super(PKForm, self).__init__(*args, **kwargs)
 
         if is_create_page:
             self.fields['spk'].queryset = SPK.objects.filter(is_without_pk=False)
+
+        if spk_id:
+            try:
+                spk = SPK.objects.get(id=spk_id)
+                self.fields['spk'].initial = spk
+
+                if spk.is_without_pk:
+                    pk = PK.objects.filter(spk=spk).first()
+                    self.fields['pk_number'].initial = pk.pk_number.split('-')[1]
+                    self.fields['start_date'].initial = pk.start_date.strftime('%Y-%m-%d')
+                    self.fields['end_date'].initial = pk.end_date.strftime('%Y-%m-%d')
+                    self.fields['execution_time'].initial = pk.execution_time
+                    self.fields['maintenance_time'].initial = pk.maintenance_time
+
+            except SPK.DoesNotExist:
+                pass
 
     def clean_pk_number(self):
         spk = self.cleaned_data.get('spk')

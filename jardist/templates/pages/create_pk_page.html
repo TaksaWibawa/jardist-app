@@ -62,7 +62,7 @@
             {% endfor %}
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Simpan & Register Pekerjaan</button>
       </form>
     </div>
   </section>
@@ -100,6 +100,22 @@
           }
         });
       }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const spkId = urlParams.get('spk_id');
+
+      if (spkId) {
+        fetch(`/pk/check_pk_in_spk/${spkId}/`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.is_without_pk) {
+              pkNumberFieldPrepend.textContent = 'SPK-';
+              pkNumberField.readOnly = true;
+              pkNumberField.style.cursor = 'not-allowed';
+            }
+          });
+      }
+
 
       let formSubmitted = false;
 

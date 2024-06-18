@@ -1,6 +1,8 @@
-from django.shortcuts import render, redirect
-from jardist.forms.spk_form import SPKForm
 from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from jardist.forms.spk_form import SPKForm
+from urllib.parse import urlencode
 
 def CreateSPKPage(request):
     form = SPKForm()
@@ -13,7 +15,12 @@ def CreateSPKPage(request):
                 spk.department = request.user.userprofile.department
             spk.save()
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('home')
+            
+            base_url = reverse('create_pk')
+            query_string = urlencode({'spk_id': spk.id})
+            url = '{}?{}'.format(base_url, query_string)
+
+            return redirect(url)
         else:
             messages.error(request, 'Data gagal disimpan')
         
