@@ -87,15 +87,29 @@
         document.getElementById('maintenance_time'),
       ];
 
+      const form = document.querySelector('.create-pk-page__content__form');
+
+      form.addEventListener('submit', function(event) {
+        otherFields.forEach(function(field) {
+          if (field.disabled) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = field.name;
+            hiddenInput.value = field.value;
+            form.appendChild(hiddenInput);
+          }
+        });
+      });
+
       otherFields.forEach(function(field) {
-        field.readOnly = true;
+        field.disabled = true;
         field.style.cursor = 'not-allowed';
       });
 
       if (spkChoiceField.value) {
         otherFields.forEach(function(field) {
           if (field !== endDateField) {
-            field.readOnly = false;
+            field.disabled = false;
             field.style.cursor = 'auto';
           }
         });
@@ -128,7 +142,7 @@
             if (spkChoiceField.value) {
               otherFields.forEach(function(field) {
                 if (field !== endDateField) {
-                  field.readOnly = false;
+                  field.disabled = false;
                   field.style.cursor = 'auto';
                 }
               });
@@ -158,7 +172,7 @@
           } else {
               otherFields.forEach(function(field) {
                 if (field !== endDateField) {
-                  field.readOnly = true;
+                  field.disabled = true;
                   field.value = '';
                   field.style.cursor = 'not-allowed';
                 }
