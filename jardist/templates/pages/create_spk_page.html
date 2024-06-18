@@ -74,14 +74,31 @@
       const endDateField = document.getElementById('end_date');
       const maintenanceTimeField = document.getElementById('maintenance_time');
     
-      endDateField.readOnly = true;
+      endDateField.disabled = true;
       endDateField.style.cursor = 'not-allowed';
+
+      let formSubmitted = false;
+
+      const form = document.querySelector('.create-spk-page__content__form');
+
+      form.addEventListener('submit', function(event) {
+        formSubmitted = true;
+        if (endDateField.disabled) {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = endDateField.name;
+          hiddenInput.value = endDateField.value;
+          form.appendChild(hiddenInput);
+        }
+      });
     
       const updateEndDate = () => {
-        const startDate = new Date(startDateField.value);
-        const executionTime = Number(executionTimeField.value);
-        const endDate = new Date(startDate.getTime() + executionTime * 24 * 60 * 60 * 1000);
-        endDateField.value = endDate.toISOString().split('T')[0];
+        if (!formSubmitted) {
+          const startDate = new Date(startDateField.value);
+          const executionTime = Number(executionTimeField.value);
+          const endDate = new Date(startDate.getTime() + executionTime * 24 * 60 * 60 * 1000);
+          endDateField.value = endDate.toISOString().split('T')[0];
+        }
       };
     
       startDateField.addEventListener('change', updateEndDate);
