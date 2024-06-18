@@ -1,0 +1,120 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block page_title %}Create SPK{% endblock page_title %}
+{% block title %}BUAT SPK BARU{% endblock %}
+
+{% block content %}
+  <section class="create-spk-page">
+    <div class="create-spk-page__content">
+      <form method="post" class="create-spk-page__content__form">
+        {% csrf_token %}
+        <div class="row mb-3">
+          <label for="{{ form.spk_number.id_for_label }}">{{ form.spk_number.label }}</label>
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon1">SPK-</span>
+            </div>
+            {{ form.spk_number }}
+          </div>
+          {% for error in form.spk_number.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.start_date.id_for_label }}">{{ form.start_date.label }}</label>
+            {{ form.start_date }}
+            {% for error in form.start_date.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.execution_time.id_for_label }}">{{ form.execution_time.label }}</label>
+            {{ form.execution_time }}
+            {% for error in form.execution_time.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
+            {{ form.end_date }}
+            {% for error in form.end_date.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.maintenance_time.id_for_label }}">{{ form.maintenance_time.label }}</label>
+            {{ form.maintenance_time }}
+            {% for error in form.maintenance_time.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          {{ form.is_without_pk }}
+          <label for="{{ form.is_without_pk.id_for_label }}">{{ form.is_without_pk.label }}</label>
+          {% for error in form.is_without_pk.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </section>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const startDateField = document.getElementById('start_date');
+      const executionTimeField = document.getElementById('execution_time');
+      const endDateField = document.getElementById('end_date');
+      const maintenanceTimeField = document.getElementById('maintenance_time');
+    
+      endDateField.readOnly = true;
+      endDateField.style.cursor = 'not-allowed';
+    
+      const updateEndDate = () => {
+        const startDate = new Date(startDateField.value);
+        const executionTime = Number(executionTimeField.value);
+        const endDate = new Date(startDate.getTime() + executionTime * 24 * 60 * 60 * 1000);
+        endDateField.value = endDate.toISOString().split('T')[0];
+      };
+    
+      startDateField.addEventListener('change', updateEndDate);
+      executionTimeField.addEventListener('change', updateEndDate);
+    
+      if (!startDateField.value) {
+        const today = new Date();
+        startDateField.value = today.toISOString().split('T')[0];
+        executionTimeField.value = null;
+        updateEndDate();
+      }
+          
+      executionTimeField.addEventListener('input', () => {
+        if (executionTimeField.value < 0) executionTimeField.value = 0;
+      });
+      
+      maintenanceTimeField.addEventListener('input', () => {
+        if (maintenanceTimeField.value < 0) maintenanceTimeField.value = 0;
+      });
+
+      executionTimeField.addEventListener('keypress', (event) => {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+          event.preventDefault();
+        }
+      });
+      
+      maintenanceTimeField.addEventListener('keypress', (event) => {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+{% endblock scripts %}

@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block page_title %}Home{% endblock page_title %}
+{% block title %}APLIKASI JARDIST PETIR{% endblock title %}
+
+{% block content %}
+  <section class="home-page">
+    <div class="home-page__content">
+      {% for menu in NAV_ITEMS %}
+        <a href="{% url menu.url %}"
+           class="home-page__content__item">
+          {{ menu.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock content %}

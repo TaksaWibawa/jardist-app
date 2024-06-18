@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
+    <title>
+      {% block page_title %}Jardist{% endblock page_title %}
+    </title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %} {% bootstrap_javascript %}
+    {% load static %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'jardist/css/styles.css' %}" />
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}"
+          rel="stylesheet"
+          type="text/css" />
+    <link href="{% static 'fontawesomefree/css/solid.css' %}"
+          rel="stylesheet"
+          type="text/css" />
+  </head>
+  <body>
+    <div class="container-fluid wrapper">
+      <header class="header">
+        <h1>{% block title %}Base Title{% endblock %}</h1>
+      </header>
+      <main class="content-wrapper">
+        {% block content %}
+          Base Content
+        {% endblock content %}
+      </main>
+      <div class="toast-container">
+        {% for message in messages %}
+          <div class="toast {{ message.tags }}"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true"
+               data-bs-autohide="true">
+            <div class="toast-body position-relative">
+              {{ message }}
+              <button type="button"
+                      class="btn-close position-absolute top-0 end-0 m-2"
+                      data-bs-dismiss="toast"
+                      aria-label="Close"></button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% block scripts %}
+      <script src="{% static 'jardist/js/scripts.js' %}"></script>
+    {% endblock scripts %}
+  </body>
+</html>
