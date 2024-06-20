@@ -31,7 +31,7 @@ class SPKForm(forms.ModelForm):
         spk_number_db_format = f'SPK-{spk_number}'
 
         if SPK.objects.filter(spk_number=spk_number_db_format).exists():
-            raise forms.ValidationError("SPK number already exists.")
+            raise forms.ValidationError("Nomor SPK sudah ada")
 
         return spk_number
 
@@ -39,14 +39,14 @@ class SPKForm(forms.ModelForm):
         execution_time = self.cleaned_data['execution_time']
         if execution_time < 0:
             print('Execution Time:', execution_time)
-            raise forms.ValidationError('Execution Time should not be minus')
+            raise forms.ValidationError('Waktu Pelaksanaan tidak boleh minus')
         return execution_time
     
     def clean_maintenance_time(self):
         maintenance_time = self.cleaned_data['maintenance_time']
         if maintenance_time < 0:
             print('Maintenance Time:', maintenance_time)
-            raise forms.ValidationError('Maintenance Time should not be minus')
+            raise forms.ValidationError('Waktu Pemeliharaan tidak boleh minus')
         return maintenance_time
     
     def clean(self):
@@ -56,6 +56,6 @@ class SPKForm(forms.ModelForm):
 
         if start_date and end_date and (start_date >= end_date):
             print('Start Date:', start_date)
-            raise forms.ValidationError('End Date should be greater than Start Date')
+            raise forms.ValidationError('Tanggal Berakhir harus lebih besar dari Tanggal Mulai')
         return cleaned_data
     

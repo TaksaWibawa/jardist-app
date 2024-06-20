@@ -93,7 +93,7 @@ class PK(Auditable):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    pk_number = models.CharField(max_length=100, verbose_name='Nomor PK')
+    pk_number = models.CharField(max_length=100, verbose_name='Nomor PK', unique=True)
     spk = models.ForeignKey(SPK, on_delete=models.CASCADE, verbose_name='SPK')
     start_date = models.DateField(verbose_name='Tanggal Mulai')
     end_date = models.DateField(verbose_name='Tanggal Selesai')

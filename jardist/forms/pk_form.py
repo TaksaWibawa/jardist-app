@@ -60,25 +60,26 @@ class PKForm(forms.ModelForm):
                     setattr(pk, key, value)
                 pk.save()
             except PK.DoesNotExist:
-                raise forms.ValidationError("PK number does not exist for this SPK.")
+                raise forms.ValidationError("Nomor PK tidak ditemukan")
         elif spk:
-            pk_exists = PK.objects.filter(spk=spk, pk_number__in=[pk_number_db_format_spk, pk_number_db_format_pk]).exists()
-    
+            pk_exists = PK.objects.filter(spk=spk, pk_number__in=[pk_number_db_format_spk, pk_number_db_format_pk])
+
             if pk_exists:
-                raise forms.ValidationError("PK number already exists for this SPK.")
+                spk_with_same_pk = pk_exists.first().spk
+                raise forms.ValidationError(f"Nomor PK {pk_number} sudah digunakan pada {spk_with_same_pk.spk_number}")
     
         return pk_number
 
     def clean_execution_time(self):
         execution_time = self.cleaned_data['execution_time']
         if execution_time < 0:
-            raise forms.ValidationError('Execution Time should not be minus')
+            raise forms.ValidationError('Waktu Pelaksanaan tidak boleh minus')
         return execution_time
     
     def clean_maintenance_time(self):
         maintenance_time = self.cleaned_data['maintenance_time']
         if maintenance_time < 0:
-            raise forms.ValidationError('Maintenance Time should not be minus')
+            raise forms.ValidationError('Waktu Pemeliharaan tidak boleh minus')
         return maintenance_time
     
     def clean(self):
@@ -87,6 +88,6 @@ class PKForm(forms.ModelForm):
         end_date = cleaned_data.get('end_date')
 
         if start_date and end_date and (start_date >= end_date):
-            raise forms.ValidationError('End Date should be greater than Start Date')
+            raise forms.ValidationError('Tanggal Berakhir harus lebih besar dari Tanggal Mulai')
         return cleaned_data
     
