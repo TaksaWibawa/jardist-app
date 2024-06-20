@@ -5,6 +5,19 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
+def add_task_types(apps, schema_editor):
+    TaskType = apps.get_model('jardist', 'TaskType')
+    TaskType.objects.bulk_create([
+        TaskType(name='AAACS', description='AAACS'),
+        TaskType(name='MVTIC', description='MVTIC'),
+        TaskType(name='Kabel Tanam', description='Kabel Tanam'),
+        TaskType(name='Gardu', description='Gardu'),
+    ])
+
+def remove_task_types(apps, schema_editor):
+    TaskType = apps.get_model('jardist', 'TaskType')
+    TaskType.objects.all().delete()
+
 def add_roles(apps, schema_editor):
     Role = apps.get_model('jardist', 'Role')
     Role.objects.bulk_create([
@@ -50,4 +63,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(create_superuser, remove_all_users),
         migrations.RunPython(add_roles, remove_roles),
         migrations.RunPython(add_departments, remove_departments),
+        migrations.RunPython(add_task_types, remove_task_types),
     ]

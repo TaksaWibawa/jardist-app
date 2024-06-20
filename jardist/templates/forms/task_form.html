@@ -1,0 +1,83 @@
+<form method="post" class="create-task-page__content__form" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row mb-3">
+    <label for="{{ form.pk_instance.id_for_label }}">{{ form.pk_instance.label }}</label>
+    <div class="input-group">
+      {{ form.pk_instance }}
+    </div>
+    {% for error in form.pk_instance.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+  <div class="row mb-3">
+    <label for="{{ form.task_name.id_for_label }}">{{ form.task_name.label }}</label>
+    <div class="input-group">
+      {{ form.task_name }}
+    </div>
+    {% for error in form.task_name.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+  <div class="row mb-3">
+    <label for="{{ form.task_type.id_for_label }}">{{ form.task_type.label }}</label>
+    <div class="input-group">
+      {{ form.task_type }}
+    </div>
+    {% for error in form.task_type.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+  <div class="row mb-3">
+    <label for="{{ form.customer_name.id_for_label }}">{{ form.customer_name.label }}</label>
+    <div class="input-group">
+      {{ form.customer_name }}
+    </div>
+    {% for error in form.customer_name.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6 mb-3">
+      <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+      {{ form.location }}
+      {% for error in form.location.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <label for="{{ form.execution_time.id_for_label }}">{{ form.execution_time.label }}</label>
+      {{ form.execution_time }}
+      {% for error in form.execution_time.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6">
+      <label for="{{ form.maintenance_time.id_for_label }}">{{ form.maintenance_time.label }}</label>
+      {{ form.maintenance_time }}
+      {% for error in form.maintenance_time.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="form-group col-md-6">
+      <label for="{{ form.rab.id_for_label }}">{{ form.rab.label }}</label>
+      {{ form.rab }}
+      {% for error in form.rab.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6 mb-3 d-none d-md-block"></div>
+    <div class="form-group col-md-6 mb-3">
+      {{ form.is_with_template }}
+      <label for="{{ form.is_with_template.id_for_label }}">{{ form.is_with_template.label }}</label>
+      {% for error in form.is_with_template.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  <button type="submit" name="save_and_continue" class="btn btn-primary">Simpan & Preview PK</button>
+  <button type="submit" name="save_and_add_another" class="btn btn-secondary">Tambah Pekerjaan Lain</button>
+</form>

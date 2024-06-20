@@ -7,63 +7,7 @@
 {% block content %}
   <section class="create-pk-page">
     <div class="create-pk-page__content">
-      <form method="post" class="create-pk-page__content__form">
-        {% csrf_token %}
-        <div class="row mb-3">
-          <label for="{{ form.spk.id_for_label }}">{{ form.spk.label }}</label>
-          <div class="input-group">
-            {{ form.spk }}
-          </div>
-          {% for error in form.spk.errors %}
-            <div class="text-danger">{{ error }}</div>
-          {% endfor %}
-        </div>
-        <div class="row mb-3">
-          <label for="{{ form.pk_number.id_for_label }}">{{ form.pk_number.label }}</label>
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="basic-addon1">PK-</span>
-            </div>
-            {{ form.pk_number }}
-          </div>
-          {% for error in form.pk_number.errors %}
-            <div class="text-danger">{{ error }}</div>
-          {% endfor %}
-        </div>
-        <div class="row">
-          <div class="form-group col-md-6 mb-3">
-            <label for="{{ form.start_date.id_for_label }}">{{ form.start_date.label }}</label>
-            {{ form.start_date }}
-            {% for error in form.start_date.errors %}
-              <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="form-group col-md-6 mb-3">
-            <label for="{{ form.execution_time.id_for_label }}">{{ form.execution_time.label }}</label>
-            {{ form.execution_time }}
-            {% for error in form.execution_time.errors %}
-              <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="row">
-          <div class="form-group col-md-6 mb-3">
-            <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
-            {{ form.end_date }}
-            {% for error in form.end_date.errors %}
-              <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="form-group col-md-6 mb-3">
-            <label for="{{ form.maintenance_time.id_for_label }}">{{ form.maintenance_time.label }}</label>
-            {{ form.maintenance_time }}
-            {% for error in form.maintenance_time.errors %}
-              <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Simpan & Register Pekerjaan</button>
-      </form>
+      {% include "forms/pk_form.html" %}
     </div>
   </section>
 {% endblock content %}
@@ -78,7 +22,6 @@
       const maintenanceTimeField = document.getElementById('maintenance_time');
 
       const pkNumberField = document.getElementById('pk_number');
-      const pkNumberFieldPrepend = document.querySelector('.input-group-prepend span');
       const otherFields = [
         pkNumberField,
         document.getElementById('start_date'),
@@ -123,7 +66,6 @@
           .then(response => response.json())
           .then(data => {
             if (data.is_without_pk) {
-              pkNumberFieldPrepend.textContent = 'SPK-';
               pkNumberField.readOnly = true;
               pkNumberField.style.cursor = 'not-allowed';
             }
@@ -151,22 +93,18 @@
                   .then(response => response.json())
                   .then(data => {
                       if (data.is_without_pk) {
-                          pkNumberFieldPrepend.textContent = 'SPK-';
-                          pkNumberField.value = data.spk.split('-')[1];
                           pkNumberField.readOnly = true;
                           pkNumberField.style.cursor = 'not-allowed';
 
+                          pkNumberField.value = data.spk;
                           startDateField.value = data.start_date;
                           executionTimeField.value = data.execution_time;
                           maintenanceTimeField.value = data.maintenance_time;
                           updateEndDate();
                       } else {
                           pkNumberField.value = '';
-                          pkNumberFieldPrepend.textContent = 'PK-';
                           executionTimeField.value = '';
                           maintenanceTimeField.value = '';
-                          startDateField.value = '';
-                          endDateField.value = '';
                       }
                   });
           } else {
@@ -177,7 +115,6 @@
                   field.style.cursor = 'not-allowed';
                 }
               });
-              pkNumberFieldPrepend.textContent = 'PK-';
           }
         }
       });

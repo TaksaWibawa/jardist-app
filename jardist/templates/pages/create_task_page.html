@@ -1,0 +1,50 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block page_title %}Create Pekerjaan{% endblock page_title %}
+{% block title %}BUAT PEKERJAAN BARU{% endblock %}
+
+{% block content %}
+  <section class="create-task-page">
+    <div class="create-task-page__content">
+      {% include "forms/task_form.html" %}
+    </div>
+  </section>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pkField = document.getElementById('pk_instance');
+        const executionTimeField = document.getElementById('execution_time');
+        const form = document.querySelector('.create-task-page__content__form');
+
+        executionTimeField.setAttribute('disabled', '');
+        executionTimeField.style.cursor = 'not-allowed';
+
+        form.addEventListener('submit', function(event) {
+            if (executionTimeField.disabled) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = executionTimeField.name;
+                hiddenInput.value = executionTimeField.value;
+                form.appendChild(hiddenInput);
+            }
+        });
+
+        pkField.addEventListener('change', function() {
+            const selectedPK = pkField.value;
+
+            if (selectedPK) {
+                fetch(`{% url 'get_pk_data' %}?pk_id=${selectedPK}&field=execution_time`)
+                    .then(response => response.json())
+                    .then(data => {
+                        executionTimeField.value = data.execution_time;
+                    });
+            } else {
+                executionTimeField.value = '';
+            }
+        });
+    });
+  </script>
+{% endblock scripts %}

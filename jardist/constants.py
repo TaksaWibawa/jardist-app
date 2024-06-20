@@ -1,0 +1,1 @@
+TASK_FORM_FIELDS = ['Jenis Pekerjaan', 'Sub Jenis Pekerjaan', 'Kategori Material', 'Nama Material', 'Satuan', 'Bahan', 'Upah', 'Vol PLN', 'Vol Pemb']

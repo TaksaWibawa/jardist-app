@@ -15,12 +15,15 @@ def CreateSPKPage(request):
                 spk.department = request.user.userprofile.department
             spk.save()
             messages.success(request, 'Data berhasil disimpan')
-            
-            base_url = reverse('create_pk')
-            query_string = urlencode({'spk_id': spk.id})
-            url = '{}?{}'.format(base_url, query_string)
 
-            return redirect(url)
+            if spk.is_without_pk:
+                return redirect('home')
+            else:
+                base_url = reverse('create_pk')
+                query_string = urlencode({'spk_id': spk.id})
+                url = '{}?{}'.format(base_url, query_string)
+
+                return redirect(url)
         else:
             messages.error(request, 'Data gagal disimpan')
         

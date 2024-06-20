@@ -123,18 +123,18 @@ body {
   color: #333;
 }
 
-.create-spk-page, .create-pk-page {
+.create-spk-page, .create-pk-page, .create-task-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-block: 2rem;
 }
 
-.create-spk-page__content, .create-pk-page__content {
+.create-spk-page__content, .create-pk-page__content, .create-task-page__content {
   width: 100%;
 }
 
-.create-spk-page__content__form, .create-pk-page__content__form {
+.create-spk-page__content__form, .create-pk-page__content__form, .create-task-page__content__form {
   display: flex;
   flex-direction: column;
   gap: 1rem;

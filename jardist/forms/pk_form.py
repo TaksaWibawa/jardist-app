@@ -1,5 +1,5 @@
 from django import forms
-from jardist.models import PK, SPK
+from jardist.models.contract_models import SPK, PK
 
 class PKForm(forms.ModelForm):
     spk = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'spk'}), label='No. SPK')
@@ -8,7 +8,7 @@ class PKForm(forms.ModelForm):
         model = PK
         fields = ['spk', 'pk_number', 'start_date', 'end_date', 'execution_time', 'maintenance_time']
         widgets = {
-            'pk_number': forms.TextInput(attrs={'class': 'form-control', 'pattern': '[0-9]+', 'id': 'pk_number', 'placeholder': 'Isi No. PK (Angka saja)'}), 
+            'pk_number': forms.TextInput(attrs={'class': 'form-control', 'id': 'pk_number', 'placeholder': 'Isi No. PK'}), 
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'start_date', 'placeholder': 'Pilih Tanggal PK'}),
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'end_date', 'placeholder': 'Pilih Tanggal Berakhir PK'}),
             'execution_time': forms.NumberInput(attrs={'class': 'form-control', 'id': 'execution_time', 'min': 0, 'placeholder': 'Isi Waktu Pelaksanaan Dalam Hari Kalender'}),
@@ -28,8 +28,7 @@ class PKForm(forms.ModelForm):
         is_create_page = kwargs.pop('is_create_page', False)
         super(PKForm, self).__init__(*args, **kwargs)
 
-        if is_create_page:
-            self.fields['spk'].queryset = SPK.objects.filter(is_without_pk=False)
+        self.fields['spk'].queryset = SPK.objects.filter(is_without_pk=False)
 
         if spk_id:
             try:
@@ -38,11 +37,12 @@ class PKForm(forms.ModelForm):
 
                 if spk.is_without_pk:
                     pk = PK.objects.filter(spk=spk).first()
-                    self.fields['pk_number'].initial = pk.pk_number.split('-')[1]
-                    self.fields['start_date'].initial = pk.start_date.strftime('%Y-%m-%d')
-                    self.fields['end_date'].initial = pk.end_date.strftime('%Y-%m-%d')
-                    self.fields['execution_time'].initial = pk.execution_time
-                    self.fields['maintenance_time'].initial = pk.maintenance_time
+                    self.fields['pk_number'].initial = pk.pk_number
+
+                self.fields['start_date'].initial = spk.start_date.strftime('%Y-%m-%d')
+                self.fields['end_date'].initial = spk.end_date.strftime('%Y-%m-%d')
+                self.fields['execution_time'].initial = spk.execution_time
+                self.fields['maintenance_time'].initial = spk.maintenance_time
 
             except SPK.DoesNotExist:
                 pass
@@ -50,19 +50,17 @@ class PKForm(forms.ModelForm):
     def clean_pk_number(self):
         spk = self.cleaned_data.get('spk')
         pk_number = self.cleaned_data.get('pk_number')
-        pk_number_db_format_spk = f'SPK-{pk_number}'
-        pk_number_db_format_pk = f'PK-{pk_number}'
     
         if spk and spk.is_without_pk:
             try:
-                pk = PK.objects.get(spk=spk, pk_number__in=[pk_number_db_format_spk, pk_number_db_format_pk])
+                pk = PK.objects.get(spk=spk, pk_number__in=[pk_number])
                 for key, value in self.cleaned_data.items():
                     setattr(pk, key, value)
                 pk.save()
             except PK.DoesNotExist:
                 raise forms.ValidationError("Nomor PK tidak ditemukan")
         elif spk:
-            pk_exists = PK.objects.filter(spk=spk, pk_number__in=[pk_number_db_format_spk, pk_number_db_format_pk])
+            pk_exists = PK.objects.filter(spk=spk, pk_number__in=[pk_number])
 
             if pk_exists:
                 spk_with_same_pk = pk_exists.first().spk
@@ -91,3 +89,18 @@ class PKForm(forms.ModelForm):
             raise forms.ValidationError('Tanggal Berakhir harus lebih besar dari Tanggal Mulai')
         return cleaned_data
     
+    def save(self, commit=True):
+        instance = super(PKForm, self).save(commit=False)
+
+        existing_pk = PK.objects.filter(spk=instance.spk, pk_number=instance.pk_number).first()
+
+        if existing_pk:
+            for field in self.Meta.fields:
+                setattr(existing_pk, field, getattr(instance, field))
+            if commit:
+                existing_pk.save()
+            return existing_pk
+        else:
+            if commit:
+                instance.save()
+            return instance

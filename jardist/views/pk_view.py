@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from jardist.forms.pk_form import PKForm
-from jardist.models import SPK
+from jardist.models.contract_models import SPK, PK
 
 def CreatePKPage(request):
     spk_id = request.GET.get('spk_id', None)
@@ -44,7 +44,21 @@ def check_pk_in_spk(request, **kwargs):
             'execution_time': spk.execution_time,
             'maintenance_time': spk.maintenance_time
         }
+        print(data)
         return JsonResponse(data)
     except SPK.DoesNotExist:
         messages.error(request, 'SPK not found')
         return JsonResponse({'error': 'SPK not found'}, status=404)
+    
+def get_pk_data(request):
+    pk_id = request.GET.get('pk_id')
+    field = request.GET.get('field', 'execution_time')
+
+    try:
+        pk = PK.objects.get(id=pk_id)
+        if hasattr(pk, field):
+            return JsonResponse({field: getattr(pk, field)})
+        else:
+            return JsonResponse({'error': f'Field {field} not found'}, status=400)
+    except PK.DoesNotExist:
+        return JsonResponse({'error': 'PK not found'}, status=404)

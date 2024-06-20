@@ -1,52 +1,12 @@
 import uuid
+from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from datetime import timedelta
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
+from .role_models import Department
+from .base_models.audit_model import Auditable
 
-class Auditable(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    created_by = models.ForeignKey(User, related_name='created_%(class)s_set', null=True, blank=True, on_delete=models.SET_NULL, editable=False)
-    last_updated_at = models.DateTimeField(auto_now=True, editable=False)
-    last_updated_by = models.ForeignKey(User, related_name='updated_%(class)s_set', null=True, blank=True, on_delete=models.SET_NULL, editable=False)
-
-    class Meta:
-        abstract = True
-    
-    def save(self, *args, **kwargs):
-        if self._state.adding:
-            if self.created_by is None:
-                self.created_by = User.objects.get(username='admin')
-            if self.last_updated_by is None:
-                self.last_updated_by = User.objects.get(username='admin')
-
-        else:
-            if self.last_updated_by is None:
-                self.last_updated_by = User.objects.get(username='admin')
-        super().save(*args, **kwargs)
-
-class Department(Auditable):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.CharField(max_length=200, null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-class Role(Auditable):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
-    
-class UserProfile(Auditable):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return self.user.username
-    
 class SPK(Auditable):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     spk_number = models.CharField(max_length=100, unique=True, verbose_name='Nomor SPK')
@@ -131,16 +91,10 @@ class PK(Auditable):
                     new_status=self.status,
                     changed_by=self.last_updated_by
                 )
-
-        if not self.spk.is_without_pk:
-            if not self.pk_number.startswith('PK-'):
-                self.pk_number = 'PK-' + self.pk_number
-        else:
-            self.pk_number = self.spk.spk_number
-
+    
         if self.execution_time is not None:
             self.end_date = self.start_date + timedelta(days=self.execution_time)
-
+    
         super().save(*args, **kwargs)
 
     def __str__(self):
