@@ -1,7 +1,10 @@
 import csv
 from jardist.models.task_models import Task, TaskType
+from jardist.models.task_models import SubTask, SubTaskType, SubTaskMaterial
+from jardist.models.material_models import Material, MaterialCategory
 from jardist.models.contract_models import PK
 from jardist.constants import TASK_FORM_FIELDS
+from django.db import transaction
 from django import forms
 
 class TaskForm(forms.ModelForm):
@@ -29,6 +32,10 @@ class TaskForm(forms.ModelForm):
             'rab': 'Upload RAB',
             'is_with_template': 'Centang jika pakai template RAB',
         }
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
 
     def clean_rab(self):
         rab = self.cleaned_data.get('rab')
@@ -57,3 +64,36 @@ class TaskForm(forms.ModelForm):
         required_headers = TASK_FORM_FIELDS
         if headers != required_headers:
             self.add_error('rab', "File RAB tidak sesuai dengan format RAB.")
+    
+    @transaction.atomic
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        rab = self.cleaned_data.get('rab')
+        rab.seek(0)
+        reader = csv.reader(rab.read().decode('utf-8').splitlines())
+        next(reader, None)
+
+        task_type_found = False
+
+        for row in reader:
+            jenis_pekerjaan, sub_jenis_pekerjaan, kategori_material, nama_material, satuan, bahan, upah, vol_pln, vol_pemb = row
+
+            task_type = TaskType.objects.filter(name__iexact=jenis_pekerjaan).first()
+
+            if task_type and task_type.name == instance.task_type:
+                task_type_found = True
+                sub_task_type, _ = SubTaskType.objects.get_or_create(name__iexact=sub_jenis_pekerjaan, defaults={'name': sub_jenis_pekerjaan, 'task_type': task_type})
+                material_category, _ = MaterialCategory.objects.get_or_create(name__iexact=kategori_material, defaults={'name': kategori_material})
+                material, _ = Material.objects.get_or_create(name__iexact=nama_material, defaults={'name': nama_material, 'category': material_category, 'unit': satuan, 'price': bahan})
+
+                if sub_task_type.task_type == task_type:
+                    sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
+                    SubTaskMaterial.objects.create(subtask=sub_task, material=material, labor_price=upah, client_volume=vol_pln, contractor_volume=vol_pemb)
+
+        if not task_type_found:
+            self.add_error('rab', 'Sub pekerjaan tidak ditemukan')
+            return None
+
+        instance.save()
+        return instance

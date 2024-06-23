@@ -23,8 +23,6 @@ class SPK(Auditable):
     
     @transaction.atomic
     def save(self, *args, **kwargs):
-        if not self.spk_number.startswith('SPK-'):
-            self.spk_number = 'SPK-' + self.spk_number
         if self.execution_time is not None:
             self.end_date = self.start_date + timedelta(days=self.execution_time)
         super().save(*args, **kwargs)

@@ -24,7 +24,7 @@ def CreatePKPage(request):
                 pk.department = request.user.userprofile.department
             pk.save()
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('home')
+            return redirect('create_task')
         else:
             messages.error(request, 'Data gagal disimpan')
         
@@ -44,7 +44,6 @@ def check_pk_in_spk(request, **kwargs):
             'execution_time': spk.execution_time,
             'maintenance_time': spk.maintenance_time
         }
-        print(data)
         return JsonResponse(data)
     except SPK.DoesNotExist:
         messages.error(request, 'SPK not found')
