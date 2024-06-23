@@ -7,6 +7,7 @@ urlpatterns = [
   path('spk/create/', spk_view.CreateSPKPage, name='create_spk'),
 
   path('pk/create/', pk_view.CreatePKPage, name='create_pk'),
+  path('pk/view/<uuid:pk_id>/', pk_view.ViewPKPage, name='view_pk'),
   path('pk/get_pk_data/', pk_view.get_pk_data, name='get_pk_data'),
   path('pk/check_pk_in_spk/<uuid:spk_id>/', pk_view.check_pk_in_spk, name='check_pk_in_spk'),
 

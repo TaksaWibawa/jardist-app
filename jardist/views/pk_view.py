@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from jardist.forms.pk_form import PKForm
 from jardist.models.contract_models import SPK, PK
+from jardist.models.task_models import Task
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def CreatePKPage(request):
     spk_id = request.GET.get('spk_id', None)
@@ -31,6 +33,46 @@ def CreatePKPage(request):
     context = {'form': form}
 
     return render(request, 'pages/create_pk_page.html', context)
+
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+def ViewPKPage(request, pk_id):
+    pk = PK.objects.get(id=pk_id)
+    tasks = Task.objects.filter(pk_instance=pk).prefetch_related('subtask_set__materials')
+
+    paginator = Paginator(tasks, 1)
+
+    page = request.GET.get('page')
+
+    try:
+        tasks_page = paginator.page(page)
+    except PageNotAnInteger:
+        tasks_page = paginator.page(1)
+    except EmptyPage:
+        tasks_page = paginator.page(paginator.num_pages)
+
+    tasks_page_data = []
+    for task in tasks_page:
+        sub_tasks_materials_by_category = {}
+        sub_tasks = list(task.subtask_set.all())
+
+        for sub_task in sub_tasks:
+            materials_by_category = {}
+            for sub_task_material in sub_task.subtaskmaterial_set.all():
+                material = sub_task_material.material
+                material.client_volume = sub_task_material.client_volume
+                material.contractor_volume = sub_task_material.contractor_volume
+                materials_by_category.setdefault(material.category, []).append(material)
+            sub_tasks_materials_by_category[sub_task] = materials_by_category
+
+        tasks_page_data.append({
+            'task': task,
+            'sub_tasks_materials_by_category': sub_tasks_materials_by_category,
+        })
+
+    context = {'pk': pk, 'tasks_page_data': tasks_page_data, 'tasks_page': tasks_page}
+    return render(request, 'pages/view_pk_page.html', context)
 
 def check_pk_in_spk(request, **kwargs):
     spk_id = kwargs.get('spk_id')

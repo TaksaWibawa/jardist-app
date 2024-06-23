@@ -15,7 +15,7 @@ def CreateTaskPage(request):
                 messages.success(request, 'Data berhasil disimpan')
 
                 if 'save_and_continue' in request.POST:
-                    return redirect('home')
+                    return redirect('view_pk', pk_id=task.pk_instance.id)
 
                 elif 'save_and_add_another' in request.POST:
                     return redirect('create_task')

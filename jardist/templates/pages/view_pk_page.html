@@ -1,0 +1,110 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load numbering %}
+
+{% block page_title %}View PK{% endblock page_title %}
+{% block title %}Lihat PK{% endblock title %}
+
+{% block content %}
+  <section class="view-pk-page">
+    <div class="content">
+      <div class="pk-info">
+        <div class="pk-info__fields">
+          <div class="pk-info__field">
+            <span class="field-label">Nomor SPK</span>
+            <span class="field-value">{{ pk.spk }}</span>
+          </div>
+          <div class="pk-info__field">
+            <span class="field-label">Nomor PK</span>
+            <span class="field-value">{{ pk.pk_number }} {%if pk.spk.is_without_pk %}(Tanpa PK){% endif %}</span>
+          </div>
+          <div class="pk-info__field">
+            <span class="field-label">Rentang Tanggal</span>
+            <span class="field-value">{{ pk.start_date }} - {{ pk.end_date }}</span>
+          </div>
+          <div class="pk-info__field">
+            <span class="field-label">Status</span>
+            <span class="field-value">{{ pk.status|title }}</span>
+          </div>
+        </div>
+        <div class="pk-actions">
+          <a href="#" class="btn action__button action__button--bast">BAST I</a>
+          <a href="#" class="btn action__button action__button--edit">Ubah PK</a>
+          <a href="#" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
+        </div>
+        <a href="#" class="btn action__button action__button--back">Kembali ke Daftar PK</a>
+      </div>
+      {% for task_data in tasks_page_data %}
+      <article class="task">
+        <div class="task-info">
+          <h3 class="info-item">
+            <span class="info-label">Nama</span>
+            <span class="info-value">: {{ task_data.task.customer_name }}</span>
+          </h3>
+          <h3 class="info-item">
+            <span class="info-label">Tanggal Berakhir</span>
+            <span class="info-value">: {{ task_data.task.pk_instance.end_date }}</span>
+          </h3>
+          <h3 class="info-item">
+            <span class="info-label">Lokasi</span>
+            <span class="info-value">: {{ task_data.task.location }}</span>
+          </h3>
+          <h3 class="info-item">
+            <span class="info-label">Jenis Pekerjaan</span>
+            <span class="info-value">: {{ task_data.task.task_type }}</span>
+          </h3>
+        </div>
+        {% for sub_task, materials_by_category in task_data.sub_tasks_materials_by_category.items %}
+          <div class="sub-task">
+            <h4>{{ forloop.counter|int_to_alphabet }}. {{ sub_task.sub_task_type }}</h4>
+            {% for category, materials in materials_by_category.items %}
+              <div class="material-group">
+                <h5>{{ forloop.counter|int_to_roman }}. {{ category.name }}</h5>
+                <table>
+                  <tr>
+                    <th rowspan="2" width="50%" class="text-center">Nama Material</th>
+                    <th rowspan="2" width="10%" class="text-center">Satuan</th>
+                    <th colspan="2" width="40%" class="text-center">Volume Kontrak Awal</th>
+                  </tr>
+                  <tr>
+                    <th width="20%" class="text-center">Client</th>
+                    <th width="20%" class="text-center">Pemborong</th>
+                  </tr>
+                  {% for material in materials %}
+                  <tr>
+                    <td class="text-center">{{ material.name }}</td>
+                    <td class="text-center">{{ material.unit }}</td>
+                    <td class="text-center">{{ material.client_volume|floatformat:0 }}</td>
+                    <td class="text-center">{{ material.contractor_volume|floatformat:0 }}</td>
+                  </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <div class="task-actions">
+          <a href="#" class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
+          <a href="#" class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
+        </article>
+        <div class="pagination">
+          {% if tasks_page.has_previous %}
+            <a href="?page={{ tasks_page.previous_page_number }}">Sebelumnya</a>
+          {% else %}
+            <span class="disabled">Sebelumnya</span>
+          {% endif %}
+        
+          <span class="current">
+            Hal. {{ tasks_page.number }} dari {{ tasks_page.paginator.num_pages }}
+          </span>
+        
+          {% if tasks_page.has_next %}
+            <a href="?page={{ tasks_page.next_page_number }}">Selanjutnya</a>
+          {% else %}
+            <span class="disabled">Selanjutnya</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock content %}

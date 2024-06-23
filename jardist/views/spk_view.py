@@ -17,7 +17,7 @@ def CreateSPKPage(request):
             messages.success(request, 'Data berhasil disimpan')
 
             if spk.is_without_pk:
-                return redirect('home')
+                return redirect('create_task')
             else:
                 base_url = reverse('create_pk')
                 query_string = urlencode({'spk_id': spk.id})
