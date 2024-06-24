@@ -1,4 +1,4 @@
-<form method="post" class="create-pk-page__content__form">
+<form method="post" class="form-page__content__form" id="pk-form">
   {% csrf_token %}
   <div class="row mb-3">
     <label for="{{ form.spk.id_for_label }}">{{ form.spk.label }}</label>
@@ -50,5 +50,11 @@
       {% endfor %}
     </div>
   </div>
-  <button type="submit" class="btn btn-primary">Simpan & Register Pekerjaan</button>
+  <button type="submit" class="btn btn-primary">
+    {% if form.instance.pk %}
+      Simpan Perubahan
+    {% else %}
+      Simpan & Register Pekerjaan
+    {% endif %}
+  </button>
 </form>

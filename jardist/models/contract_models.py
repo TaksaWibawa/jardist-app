@@ -1,7 +1,7 @@
 import uuid
 from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib.auth.models import User
 from datetime import timedelta
 from .role_models import Department
@@ -28,15 +28,18 @@ class SPK(Auditable):
         super().save(*args, **kwargs)
 
         if self.is_without_pk:
-            PK.objects.create(
-                pk_number=self.spk_number, 
-                spk=self, 
-                start_date=self.start_date,
-                end_date=self.end_date,
-                execution_time=self.execution_time,
-                maintenance_time=self.maintenance_time,
-                status='PENGERJAAN'
-            )
+            try:
+                self.pk
+            except ObjectDoesNotExist:
+                PK.objects.create(
+                    pk_number=self.spk_number, 
+                    spk=self, 
+                    start_date=self.start_date,
+                    end_date=self.end_date,
+                    execution_time=self.execution_time,
+                    maintenance_time=self.maintenance_time,
+                    status='PENGERJAAN'
+                )
 
     def __str__(self):
         return self.spk_number

@@ -5,8 +5,8 @@
 {% block title %}BUAT PK BARU{% endblock %}
 
 {% block content %}
-  <section class="create-pk-page">
-    <div class="create-pk-page__content">
+  <section class="form-page">
+    <div class="form-page__content">
       {% include "forms/pk_form.html" %}
     </div>
   </section>
@@ -30,7 +30,7 @@
         document.getElementById('maintenance_time'),
       ];
 
-      const form = document.querySelector('.create-pk-page__content__form');
+      const form = document.getElementById('pk-form');
 
       form.addEventListener('submit', function(event) {
         otherFields.forEach(function(field) {
@@ -72,10 +72,9 @@
           });
       }
 
-
       let formSubmitted = false;
 
-      document.querySelector('.create-pk-page__content__form').addEventListener('submit', function() {
+      form.addEventListener('submit', function(event) {
         formSubmitted = true;
       });
 

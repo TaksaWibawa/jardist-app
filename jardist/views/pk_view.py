@@ -1,10 +1,10 @@
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from jardist.forms.pk_form import PKForm
 from jardist.models.contract_models import SPK, PK
 from jardist.models.task_models import Task
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def CreatePKPage(request):
     spk_id = request.GET.get('spk_id', None)
@@ -34,12 +34,25 @@ def CreatePKPage(request):
 
     return render(request, 'pages/create_pk_page.html', context)
 
+def EditPKPage(request, pk_id):
+    pk = PK.objects.get(id=pk_id)
+    form = PKForm(request.POST or None, instance=pk, is_create_page=False)
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data berhasil disimpan')
+            return redirect('view_pk', pk_id=pk_id)
+        else:
+            messages.error(request, 'Data gagal disimpan')
+        
+    context = {'form': form, 'pk': pk}
+
+    return render(request, 'pages/edit_pk_page.html', context)
 
 def ViewPKPage(request, pk_id):
     pk = PK.objects.get(id=pk_id)
-    tasks = Task.objects.filter(pk_instance=pk).prefetch_related('subtask_set__materials')
+    tasks = Task.objects.filter(pk_instance=pk).prefetch_related('subtask_set__materials').order_by('id')
 
     paginator = Paginator(tasks, 1)
 

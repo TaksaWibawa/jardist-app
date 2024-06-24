@@ -29,7 +29,7 @@
         </div>
         <div class="pk-actions">
           <a href="#" class="btn action__button action__button--bast">BAST I</a>
-          <a href="#" class="btn action__button action__button--edit">Ubah PK</a>
+          <a href={% url 'edit_pk' pk.id %} class="btn action__button action__button--edit">Ubah PK</a>
           <a href="#" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
         </div>
         <a href="#" class="btn action__button action__button--back">Kembali ke Daftar PK</a>
@@ -52,6 +52,10 @@
           <h3 class="info-item">
             <span class="info-label">Jenis Pekerjaan</span>
             <span class="info-value">: {{ task_data.task.task_type }}</span>
+          </h3>
+          <h3 class="info-item">
+            <span class="info-label">Nama Pekerjaan</span>
+            <span class="info-value">: {{ task_data.task.task_name }}</span>
           </h3>
         </div>
         {% for sub_task, materials_by_category in task_data.sub_tasks_materials_by_category.items %}
@@ -84,7 +88,7 @@
           </div>
         {% endfor %}
         <div class="task-actions">
-          <a href="#" class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
+          <a href={% url 'edit_task' task_data.task.id %} class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
           <a href="#" class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
         </article>
         <div class="pagination">

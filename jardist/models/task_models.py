@@ -20,7 +20,7 @@ class TaskType(Auditable):
     
 class SubTaskType(Auditable):
     name = models.CharField(max_length=100, unique=True, db_index=True, verbose_name='Sub Jenis Pekerjaan')
-    task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE, verbose_name='Jenis Pekerjaan')
+    task_types = models.ManyToManyField(TaskType, related_name='sub_task_types', verbose_name='Jenis Pekerjaan')
     description = models.CharField(max_length=200, null=True, blank=True, verbose_name='Deskripsi')
 
     class Meta:
@@ -34,7 +34,7 @@ class Task(Auditable):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     task_name = models.CharField(max_length=100, verbose_name='Nama Pekerjaan')
     pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, verbose_name='No. PK')
-    task_type = models.CharField(max_length=100, verbose_name='Jenis Pekerjaan')
+    task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE, verbose_name='Jenis Pekerjaan')
     customer_name = models.CharField(max_length=100, verbose_name='Nama Pelanggan')
     location = models.CharField(max_length=100, verbose_name='Lokasi Pekerjaan')
     execution_time = models.IntegerField(verbose_name='Waktu Pelaksanaan')
@@ -90,8 +90,10 @@ class SubTaskMaterial(models.Model):
     subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah')
+    # rab
     client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client')
     contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong')
+    # realization
 
     class Meta:
         unique_together = ('subtask', 'material')

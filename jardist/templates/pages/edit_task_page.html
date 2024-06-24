@@ -1,8 +1,8 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block page_title %}Create Pekerjaan{% endblock page_title %}
-{% block title %}BUAT PEKERJAAN BARU{% endblock %}
+{% block page_title %}Edit Pekerjaan{% endblock page_title %}
+{% block title %}EDIT PEKERJAAN{% endblock %}
 
 {% block content %}
   <section class="form-page">
@@ -18,11 +18,16 @@
         const pkField = document.getElementById('pk_instance');
         const executionTimeField = document.getElementById('execution_time');
         const form = document.getElementById('task-form');
-
+        
+        pkField.setAttribute('disabled', '');
+        pkField.style.cursor = 'not-allowed';
         executionTimeField.setAttribute('disabled', '');
         executionTimeField.style.cursor = 'not-allowed';
 
+        let formSubmitted = false;
+
         form.addEventListener('submit', function(event) {
+            formSubmitted = true;
             if (executionTimeField.disabled) {
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
@@ -30,19 +35,13 @@
                 hiddenInput.value = executionTimeField.value;
                 form.appendChild(hiddenInput);
             }
-        });
 
-        pkField.addEventListener('change', function() {
-            const selectedPK = pkField.value;
-
-            if (selectedPK) {
-                fetch(`{% url 'get_pk_data' %}?pk_id=${selectedPK}&field=execution_time`)
-                    .then(response => response.json())
-                    .then(data => {
-                        executionTimeField.value = data.execution_time;
-                    });
-            } else {
-                executionTimeField.value = '';
+            if (pkField.disabled) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = pkField.name;
+                hiddenInput.value = pkField.value;
+                form.appendChild(hiddenInput);
             }
         });
     });

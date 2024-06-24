@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from jardist.forms.spk_form import SPKForm
+from jardist.models.contract_models import SPK
 from urllib.parse import urlencode
 
 def CreateSPKPage(request):
@@ -30,3 +31,19 @@ def CreateSPKPage(request):
     context = {'form': form}
 
     return render(request, 'pages/create_spk_page.html', context)
+
+def EditSPKPage(request, spk_id):
+    spk = SPK.objects.get(id=spk_id)
+    form = SPKForm(request.POST or None, instance=spk)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data berhasil disimpan')
+            return redirect('view_spk', spk_id=spk_id)
+        else:
+            messages.error(request, 'Data gagal disimpan')
+        
+    context = {'form': form, 'spk': spk}
+
+    return render(request, 'pages/edit_spk_page.html', context)

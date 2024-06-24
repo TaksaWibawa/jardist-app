@@ -1,13 +1,13 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block page_title %}Create SPK{% endblock page_title %}
-{% block title %}BUAT SPK BARU{% endblock %}
+{% block page_title %}Edit PK{% endblock page_title %}
+{% block title %}EDIT PK{% endblock title %}
 
 {% block content %}
   <section class="form-page">
     <div class="form-page__content">
-      {% include "forms/spk_form.html" %}
+      {% include "forms/pk_form.html" %}
     </div>
   </section>
 {% endblock content %}
@@ -15,18 +15,20 @@
   {{ block.super }}
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
-      const startDateField = document.getElementById('start_date');
-      const executionTimeField = document.getElementById('execution_time');
+      const spkChoiceField = document.getElementById('spk');
+      spkChoiceField.disabled = true;
+      spkChoiceField.style.cursor = 'not-allowed';
+
       const endDateField = document.getElementById('end_date');
-      const maintenanceTimeField = document.getElementById('maintenance_time');
-    
       endDateField.disabled = true;
       endDateField.style.cursor = 'not-allowed';
 
+      const startDateField = document.getElementById('start_date');
+      const executionTimeField = document.getElementById('execution_time');
+
       let formSubmitted = false;
 
-      const form = document.getElementById('spk-form');
-
+      const form = document.getElementById('pk-form');
       form.addEventListener('submit', function(event) {
         formSubmitted = true;
         if (endDateField.disabled) {
@@ -36,8 +38,16 @@
           hiddenInput.value = endDateField.value;
           form.appendChild(hiddenInput);
         }
+
+        if (spkChoiceField.disabled) {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = spkChoiceField.name;
+          hiddenInput.value = spkChoiceField.value;
+          form.appendChild(hiddenInput);
+        }
       });
-    
+
       const updateEndDate = () => {
         if (!formSubmitted) {
           const startDate = new Date(startDateField.value);
@@ -46,21 +56,22 @@
           endDateField.value = endDate.toISOString().split('T')[0];
         }
       };
-    
+
       startDateField.addEventListener('change', updateEndDate);
       executionTimeField.addEventListener('change', updateEndDate);
-    
+
       if (!startDateField.value) {
         const today = new Date();
         startDateField.value = today.toISOString().split('T')[0];
         executionTimeField.value = null;
         updateEndDate();
       }
-          
+
+      const maintenanceTimeField = document.getElementById('maintenance_time');
       executionTimeField.addEventListener('input', () => {
         if (executionTimeField.value < 0) executionTimeField.value = 0;
       });
-      
+
       maintenanceTimeField.addEventListener('input', () => {
         if (maintenanceTimeField.value < 0) maintenanceTimeField.value = 0;
       });
@@ -71,7 +82,7 @@
           event.preventDefault();
         }
       });
-      
+
       maintenanceTimeField.addEventListener('keypress', (event) => {
         const charCode = (event.which) ? event.which : event.keyCode;
         if (charCode > 31 && (charCode < 48 || charCode > 57)) {

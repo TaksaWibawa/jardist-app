@@ -35,65 +35,62 @@ class TaskForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
+        self.is_create_page = kwargs.pop('is_create_page', False)
         super().__init__(*args, **kwargs)
-
-    def clean_rab(self):
-        rab = self.cleaned_data.get('rab')
-
-        if not rab:
-            raise forms.ValidationError("File RAB tidak boleh kosong.")
-
-        if not rab.name.endswith('.csv'):
-            raise forms.ValidationError("File RAB harus berformat CSV.")
-
-        return rab
     
     def clean(self):
         cleaned_data = super().clean()
-        rab = cleaned_data.get('rab')
         is_with_template = cleaned_data.get('is_with_template')
+        rab = cleaned_data.get('rab')
+        task_type = cleaned_data.get('task_type')
 
         if not rab:
             self.add_error('rab', "File RAB tidak boleh kosong.")
         elif not rab.name.endswith('.csv'):
             self.add_error('rab', "File RAB harus berformat CSV.")
+        else:
+            rab.seek(0)
+            reader = csv.reader(rab.read().decode('utf-8').splitlines())
+            headers = next(reader, None)
+            required_headers = TASK_FORM_FIELDS
+            if headers != required_headers:
+                self.add_error('rab', "File RAB tidak sesuai dengan format RAB.")
+            else:
+                task_type_found = any(jenis_pekerjaan.lower() == task_type.name.lower() for jenis_pekerjaan, *_ in reader)
+                if not task_type_found:
+                    self.add_error('task_type', 'Jenis Pekerjaan tidak ditemukan dalam file RAB')
 
-        rab.seek(0)
-        reader = csv.reader(rab.read().decode('utf-8').splitlines())
-        headers = next(reader, None)
-        required_headers = TASK_FORM_FIELDS
-        if headers != required_headers:
-            self.add_error('rab', "File RAB tidak sesuai dengan format RAB.")
-    
+        if not is_with_template:
+            return cleaned_data
+
+        return cleaned_data
+
     @transaction.atomic
     def save(self, commit=True):
         instance = super().save(commit=False)
-
+    
         rab = self.cleaned_data.get('rab')
         rab.seek(0)
         reader = csv.reader(rab.read().decode('utf-8').splitlines())
         next(reader, None)
-
-        task_type_found = False
-
+    
+        if not self.is_create_page:
+            SubTask.objects.filter(task=instance).delete()
+    
         for row in reader:
             jenis_pekerjaan, sub_jenis_pekerjaan, kategori_material, nama_material, satuan, bahan, upah, vol_pln, vol_pemb = row
-
+    
             task_type = TaskType.objects.filter(name__iexact=jenis_pekerjaan).first()
-
-            if task_type and task_type.name == instance.task_type:
-                task_type_found = True
-                sub_task_type, _ = SubTaskType.objects.get_or_create(name__iexact=sub_jenis_pekerjaan, defaults={'name': sub_jenis_pekerjaan, 'task_type': task_type})
+    
+            if task_type and task_type == instance.task_type:
+                sub_task_type, created = SubTaskType.objects.get_or_create(name__iexact=sub_jenis_pekerjaan, defaults={'name': sub_jenis_pekerjaan})
+                if created:
+                    sub_task_type.task_types.add(task_type)
                 material_category, _ = MaterialCategory.objects.get_or_create(name__iexact=kategori_material, defaults={'name': kategori_material})
-                material, _ = Material.objects.get_or_create(name__iexact=nama_material, defaults={'name': nama_material, 'category': material_category, 'unit': satuan, 'price': bahan})
-
-                if sub_task_type.task_type == task_type:
-                    sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
-                    SubTaskMaterial.objects.create(subtask=sub_task, material=material, labor_price=upah, client_volume=vol_pln, contractor_volume=vol_pemb)
-
-        if not task_type_found:
-            self.add_error('rab', 'Sub pekerjaan tidak ditemukan')
-            return None
-
+                material, _ = Material.objects.get_or_create(name__iexact=nama_material, defaults={'name': nama_material, 'category': material_category, 'unit': satuan,    'price': bahan})
+    
+                sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
+                SubTaskMaterial.objects.create(subtask=sub_task, material=material, labor_price=upah, client_volume=vol_pln, contractor_volume=vol_pemb)
+    
         instance.save()
         return instance
