@@ -15,68 +15,62 @@
   {{ block.super }}
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
-      const startDateField = document.getElementById('start_date');
-      const executionTimeField = document.getElementById('execution_time');
-      const endDateField = document.getElementById('end_date');
-      const maintenanceTimeField = document.getElementById('maintenance_time');
-    
-      endDateField.disabled = true;
-      endDateField.style.cursor = 'not-allowed';
+      const form = document.getElementById('spk-form');
+      const fieldsToDisable = ['end_date'];
+      const fieldsToUpdate = ['start_date', 'execution_time'];
+      const fieldsToLimit = ['execution_time', 'maintenance_time'];
 
       let formSubmitted = false;
 
-      const form = document.getElementById('spk-form');
+      fieldsToDisable.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        field.disabled = true;
+        field.style.cursor = 'not-allowed';
 
-      form.addEventListener('submit', function(event) {
-        formSubmitted = true;
-        if (endDateField.disabled) {
-          const hiddenInput = document.createElement('input');
-          hiddenInput.type = 'hidden';
-          hiddenInput.name = endDateField.name;
-          hiddenInput.value = endDateField.value;
-          form.appendChild(hiddenInput);
-        }
+        form.addEventListener('submit', function(event) {
+          formSubmitted = true;
+          if (field.disabled) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = field.name;
+            hiddenInput.value = field.value;
+            form.appendChild(hiddenInput);
+          }
+        });
       });
-    
+
       const updateEndDate = () => {
         if (!formSubmitted) {
-          const startDate = new Date(startDateField.value);
-          const executionTime = Number(executionTimeField.value);
+          const startDate = new Date(document.getElementById('start_date').value);
+          const executionTime = Number(document.getElementById('execution_time').value);
           const endDate = new Date(startDate.getTime() + executionTime * 24 * 60 * 60 * 1000);
-          endDateField.value = endDate.toISOString().split('T')[0];
+          document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
         }
       };
-    
-      startDateField.addEventListener('change', updateEndDate);
-      executionTimeField.addEventListener('change', updateEndDate);
-    
-      if (!startDateField.value) {
-        const today = new Date();
-        startDateField.value = today.toISOString().split('T')[0];
-        executionTimeField.value = null;
-        updateEndDate();
-      }
-          
-      executionTimeField.addEventListener('input', () => {
-        if (executionTimeField.value < 0) executionTimeField.value = 0;
-      });
-      
-      maintenanceTimeField.addEventListener('input', () => {
-        if (maintenanceTimeField.value < 0) maintenanceTimeField.value = 0;
+
+      fieldsToUpdate.forEach(fieldId => {
+        document.getElementById(fieldId).addEventListener('change', updateEndDate);
       });
 
-      executionTimeField.addEventListener('keypress', (event) => {
-        const charCode = (event.which) ? event.which : event.keyCode;
-        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-          event.preventDefault();
-        }
-      });
-      
-      maintenanceTimeField.addEventListener('keypress', (event) => {
-        const charCode = (event.which) ? event.which : event.keyCode;
-        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-          event.preventDefault();
-        }
+      if (!document.getElementById('start_date').value) {
+        const today = new Date();
+        document.getElementById('start_date').value = today.toISOString().split('T')[0];
+        document.getElementById('execution_time').value = null;
+        updateEndDate();
+      }
+
+      fieldsToLimit.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        field.addEventListener('input', () => {
+          if (field.value < 0) field.value = 0;
+        });
+
+        field.addEventListener('keypress', (event) => {
+          const charCode = (event.which) ? event.which : event.keyCode;
+          if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            event.preventDefault();
+          }
+        });
       });
     });
   </script>

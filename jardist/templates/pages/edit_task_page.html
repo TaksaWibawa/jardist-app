@@ -15,34 +15,23 @@
   {{ block.super }}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const pkField = document.getElementById('pk_instance');
-        const executionTimeField = document.getElementById('execution_time');
         const form = document.getElementById('task-form');
-        
-        pkField.setAttribute('disabled', '');
-        pkField.style.cursor = 'not-allowed';
-        executionTimeField.setAttribute('disabled', '');
-        executionTimeField.style.cursor = 'not-allowed';
+        const fieldsToDisable = ['pk_instance', 'execution_time', 'task_type'];
 
-        let formSubmitted = false;
+        fieldsToDisable.forEach(function(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.setAttribute('disabled', '');
+            field.style.cursor = 'not-allowed';
 
-        form.addEventListener('submit', function(event) {
-            formSubmitted = true;
-            if (executionTimeField.disabled) {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = executionTimeField.name;
-                hiddenInput.value = executionTimeField.value;
-                form.appendChild(hiddenInput);
-            }
-
-            if (pkField.disabled) {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = pkField.name;
-                hiddenInput.value = pkField.value;
-                form.appendChild(hiddenInput);
-            }
+            form.addEventListener('submit', function(event) {
+                if (field.disabled) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = field.name;
+                    hiddenInput.value = field.value;
+                    form.appendChild(hiddenInput);
+                }
+            });
         });
     });
   </script>

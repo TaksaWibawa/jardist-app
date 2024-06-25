@@ -4,11 +4,10 @@ from jardist.forms.task_form import TaskForm
 from jardist.models.task_models import Task
 
 def CreateTaskPage(request):
-    form = TaskForm(request=request)
+    pk_id = request.GET.get('pk_id', None)
+    form = TaskForm(request.POST or None, request.FILES or None, request=request, is_create_page=True, pk_id=pk_id)
 
     if request.method == 'POST':
-        form = TaskForm(request.POST, request.FILES, request=request, is_create_page=True)
-
         if form.is_valid():
             task = form.save(commit=False)
             if task is not None:
@@ -20,10 +19,8 @@ def CreateTaskPage(request):
 
                 elif 'save_and_add_another' in request.POST:
                     return redirect('create_task')
-
             else:
-                messages.error(request, 'Tidak ada sub pekerjaan pada file')
-
+                messages.error(request, 'Data gagal disimpan')
         else:
             messages.error(request, 'Data gagal disimpan')
 
@@ -36,12 +33,13 @@ def EditTaskPage(request, task_id):
 
     if request.method == 'POST':
         if form.is_valid():
-            if task is not None:
-                form.save()
+            submitted_task = form.save(commit=False)
+            if submitted_task is not None:
+                submitted_task.save()
                 messages.success(request, 'Data berhasil disimpan')
                 return redirect('view_pk', pk_id=task.pk_instance.id)
             else:
-                messages.error(request, 'Tidak ada sub pekerjaan pada file')
+                messages.error(request, 'Data gagal disimpan')
         else:
             messages.error(request, 'Data gagal disimpan')
         

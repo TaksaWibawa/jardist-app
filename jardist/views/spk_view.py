@@ -1,9 +1,9 @@
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from jardist.forms.spk_form import SPKForm
-from jardist.models.contract_models import SPK
-from urllib.parse import urlencode
+from jardist.models.contract_models import SPK, PK
 
 def CreateSPKPage(request):
     form = SPKForm()
@@ -18,13 +18,10 @@ def CreateSPKPage(request):
             messages.success(request, 'Data berhasil disimpan')
 
             if spk.is_without_pk:
-                return redirect('create_task')
+                pk_id = PK.objects.get(spk=spk).id
+                return HttpResponseRedirect(reverse('create_task') + '?pk_id=' + str(pk_id))
             else:
-                base_url = reverse('create_pk')
-                query_string = urlencode({'spk_id': spk.id})
-                url = '{}?{}'.format(base_url, query_string)
-
-                return redirect(url)
+                return HttpResponseRedirect(reverse('create_pk') + '?spk_id=' + str(spk.id))
         else:
             messages.error(request, 'Data gagal disimpan')
         

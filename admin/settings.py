@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'fontawesomefree',
     'django_xhtml2pdf',
+    'nested_admin',
 
     # Default
     'django.contrib.admin',

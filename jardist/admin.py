@@ -2,10 +2,11 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import Group, User
 from jardist.forms.admin_form import UserAdminForm
+from nested_admin import NestedModelAdmin, NestedTabularInline
 
 from jardist.models.contract_models import SPK, PK, PKStatusAudit
 from jardist.models.role_models import Department, Role
-from jardist.models.task_models import Task, TaskType, SubTask, SubTaskType, SubTaskMaterial
+from jardist.models.task_models import Task, TaskType, SubTask, SubTaskType, SubTaskMaterial, TemplateRAB
 from jardist.models.user_models import UserProfile
 from jardist.models.material_models import Material, MaterialCategory
 
@@ -209,37 +210,56 @@ class SubTaskTypeAdmin(AuditableAdmin):
     fieldsets = (
         ('SubTask Type Details', {
             'classes': ('collapse',),
-            'fields': ('name', 'task_type', 'description'),
+            'fields': ('name', 'description'),
         }),
         ('Audit Details', {
             'classes': ('collapse',),
             'fields': AuditableAdmin.list_display,
         }),
     )
-    list_display = ['name', 'task_type', 'description'] + AuditableAdmin.list_display
+    list_display = ['name', 'description'] + AuditableAdmin.list_display
 
-class SubTaskMaterialInline(admin.TabularInline):
+class SubTaskMaterialInline(NestedTabularInline):
     model = SubTaskMaterial
-    extra = 1
+    extra = 0
 
-class SubTaskInline(admin.StackedInline):
+class SubTaskInline(NestedTabularInline):
     model = SubTask
-    extra = 1
     inlines = [SubTaskMaterialInline]
+    extra = 0
+    fields = ('sub_task_type', 'materials')
+    readonly_fields = ('materials',)
 
-class TaskAdmin(AuditableAdmin):
+    def materials(self, instance):
+        return ", ".join([str(material) for material in instance.materials.all()])
+
+class TaskAdmin(NestedModelAdmin, AuditableAdmin):
     fieldsets = (
         ('Task Details', {
             'classes': ('collapse',),
-            'fields': ('task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time', 'rab', 'is_with_template'),
+            'fields': ('task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time', 'rab'),
         }),
         ('Audit Details', {
             'classes': ('collapse',),
             'fields': AuditableAdmin.list_display,
         }),
     )
-    list_display = ['task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time', 'is_with_template'] + AuditableAdmin.list_display
+    list_display = ['task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time'] + AuditableAdmin.list_display
     inlines = [SubTaskInline]
+
+class TemplateRABAdmin(AuditableAdmin):
+    fieldsets = (
+        ('Template RAB Details', {
+            'classes': ('collapse',),
+            'fields': ('task_type', 'rab'),
+        }),
+        ('Audit Details', {
+            'classes': ('collapse',),
+            'fields': AuditableAdmin.list_display,
+        }),
+    )
+
+    list_display = ['task_type', 'rab'] + AuditableAdmin.list_display
 
 # Register models
 admin.site.unregister(User)
@@ -248,6 +268,7 @@ admin.site.register(User, UserAdmin)
 admin.site.register(TaskType, TaskTypeAdmin)
 admin.site.register(SubTaskType, SubTaskTypeAdmin)
 admin.site.register(Task, TaskAdmin)
+admin.site.register(SubTask, AuditableAdmin)
 admin.site.register(SPK, SPKAdmin)
 admin.site.register(Role, RoleAdmin)
 admin.site.register(PKStatusAudit, PKStatusAuditAdmin)
@@ -256,3 +277,4 @@ admin.site.register(MaterialCategory, MaterialCategoryAdmin)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Department, DepartmentAdmin)
+admin.site.register(TemplateRAB, TemplateRABAdmin)

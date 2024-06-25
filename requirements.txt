@@ -1,10 +1,11 @@
 django-bootstrap-v5==1.0.11
 django-environ==0.11.2
 django-jazzmin==3.0.0
-django-xhtml2pdf==0.0.4
+django-nested-admin==4.0.2
 django-xhtml2pdf==0.0.4
 Django==4.2
 fontawesomefree==6.5.1
+pandas==2.2.2
 pillow==10.3.0
 psycopg2==2.9.9
 xhtml2pdf==0.2.15

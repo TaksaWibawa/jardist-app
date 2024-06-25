@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, reverse
 from jardist.forms.pk_form import PKForm
 from jardist.models.contract_models import SPK, PK
 from jardist.models.task_models import Task
@@ -26,7 +26,7 @@ def CreatePKPage(request):
                 pk.department = request.user.userprofile.department
             pk.save()
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('create_task')
+            return HttpResponseRedirect(reverse('create_task') + '?pk_id=' + str(pk.id))
         else:
             messages.error(request, 'Data gagal disimpan')
         
@@ -74,8 +74,8 @@ def ViewPKPage(request, pk_id):
             materials_by_category = {}
             for sub_task_material in sub_task.subtaskmaterial_set.all():
                 material = sub_task_material.material
-                material.client_volume = sub_task_material.client_volume
-                material.contractor_volume = sub_task_material.contractor_volume
+                material.client_volume = sub_task_material.rab_client_volume
+                material.contractor_volume = sub_task_material.rab_contractor_volume
                 materials_by_category.setdefault(material.category, []).append(material)
             sub_tasks_materials_by_category[sub_task] = materials_by_category
 

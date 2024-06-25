@@ -58,6 +58,7 @@ class PK(Auditable):
     execution_time = models.IntegerField(verbose_name='Waktu Pelaksanaan')
     maintenance_time = models.IntegerField(verbose_name='Waktu Pemeliharaan')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENGERJAAN', verbose_name='Status PK')
+    bast_date = models.DateField(null=True, blank=True, verbose_name='Tanggal BAST I')
 
     class Meta:
         verbose_name = 'Perintah Kerja'

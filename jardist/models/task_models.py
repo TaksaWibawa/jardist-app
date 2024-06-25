@@ -1,5 +1,6 @@
 import uuid
 import csv
+from jardist.constants import TASK_FORM_FIELDS
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -39,7 +40,6 @@ class Task(Auditable):
     location = models.CharField(max_length=100, verbose_name='Lokasi Pekerjaan')
     execution_time = models.IntegerField(verbose_name='Waktu Pelaksanaan')
     maintenance_time = models.IntegerField(verbose_name='Waktu Pemeliharaan')
-    is_with_template = models.BooleanField(default=False, verbose_name='Dengan Template RAB')
     rab = models.FileField(upload_to='static/jardist/files/rab/', null=True, blank=True, verbose_name='RAB')
 
     class Meta:
@@ -59,15 +59,16 @@ class Task(Auditable):
                 'maintenance_time': _('Maintenance time must be a positive number.')
             })
 
-        if self.is_with_template and self.rab:
+        if self.rab:
             if not self.rab.name.endswith('.csv'):
                 raise ValidationError("File RAB harus berformat CSV.")
 
             self.rab.seek(0)
             reader = csv.reader(self.rab.read().decode('utf-8').splitlines())
             headers = next(reader, None)
-            required_headers = ['Jenis Pekerjaan', 'Sub Jenis Pekerjaan', 'Kategori Material', 'Nama Material', 'Satuan Material', 'Harga Bahan', 'Harga Upah', 'Volume Client', 'Volume Pemborong']
+            required_headers = TASK_FORM_FIELDS
             if headers != required_headers:
+                print(headers, required_headers)
                 raise ValidationError("File RAB tidak sesuai dengan template.")
         
     def __str__(self):
@@ -90,13 +91,31 @@ class SubTaskMaterial(models.Model):
     subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah')
-    # rab
-    client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client')
-    contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong')
-    # realization
+    rab_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (RAB)', null=True, blank=True)
+    rab_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (RAB)', null=True, blank=True)
+    realization_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (Realisasi)', null=True, blank=True)
+    realization_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (Realisasi)', null=True, blank=True)
 
     class Meta:
         unique_together = ('subtask', 'material')
 
     def __str__(self):
         return self.material.name
+
+class TemplateRAB(Auditable):
+    task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE, verbose_name='Jenis Pekerjaan')
+    rab = models.FileField(upload_to='static/jardist/files/rab/', verbose_name='Template RAB', help_text='Upload file RAB dalam format CSV')
+
+    class Meta:
+        verbose_name = 'Template RAB'
+        verbose_name_plural = 'Template RAB'
+
+    def clean(self):
+        if not self.rab.name.endswith('.csv'):
+            raise ValidationError("File RAB harus berformat CSV.")
+        
+        if TemplateRAB.objects.filter(task_type=self.task_type).exclude(id=self.id).exists():
+            raise ValidationError("Template RAB untuk jenis pekerjaan ini sudah ada.")
+
+    def __str__(self):
+        return self.task_type.name

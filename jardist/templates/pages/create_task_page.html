@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_title %}Create Pekerjaan{% endblock page_title %}
-{% block title %}BUAT PEKERJAAN BARU{% endblock %}
+{% block title %}BUAT PEKERJAAN BARU{% endblock title %}
 
 {% block content %}
   <section class="form-page">
@@ -15,35 +15,41 @@
   {{ block.super }}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const pkField = document.getElementById('pk_instance');
-        const executionTimeField = document.getElementById('execution_time');
         const form = document.getElementById('task-form');
+        const fieldsToDisable = ['execution_time'];
+        const fieldsToUpdate = ['pk_instance'];
 
-        executionTimeField.setAttribute('disabled', '');
-        executionTimeField.style.cursor = 'not-allowed';
+        fieldsToDisable.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            field.disabled = true;
+            field.style.cursor = 'not-allowed';
 
-        form.addEventListener('submit', function(event) {
-            if (executionTimeField.disabled) {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = executionTimeField.name;
-                hiddenInput.value = executionTimeField.value;
-                form.appendChild(hiddenInput);
-            }
+            form.addEventListener('submit', function(event) {
+                if (field.disabled) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = field.name;
+                    hiddenInput.value = field.value;
+                    form.appendChild(hiddenInput);
+                }
+            });
         });
 
-        pkField.addEventListener('change', function() {
-            const selectedPK = pkField.value;
+        fieldsToUpdate.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            field.addEventListener('change', function() {
+                const selectedValue = field.value;
 
-            if (selectedPK) {
-                fetch(`{% url 'get_pk_data' %}?pk_id=${selectedPK}&field=execution_time`)
-                    .then(response => response.json())
-                    .then(data => {
-                        executionTimeField.value = data.execution_time;
-                    });
-            } else {
-                executionTimeField.value = '';
-            }
+                if (selectedValue) {
+                    fetch(`{% url 'get_pk_data' %}?pk_id=${selectedValue}&field=execution_time`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('execution_time').value = data.execution_time;
+                        });
+                } else {
+                    document.getElementById('execution_time').value = '';
+                }
+            });
         });
     });
   </script>
