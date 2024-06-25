@@ -29,7 +29,7 @@ class PKForm(forms.ModelForm):
         super(PKForm, self).__init__(*args, **kwargs)
 
 
-        if is_create_page and spk_id:
+        if is_create_page:
             try:
                 self.fields['spk'].queryset = SPK.objects.filter(is_without_pk=False)
                 spk = SPK.objects.get(id=spk_id)

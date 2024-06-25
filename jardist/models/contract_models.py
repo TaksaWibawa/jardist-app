@@ -27,20 +27,17 @@ class SPK(Auditable):
             self.end_date = self.start_date + timedelta(days=self.execution_time)
         super().save(*args, **kwargs)
 
-        if self.is_without_pk:
-            try:
-                self.pk
-            except ObjectDoesNotExist:
-                PK.objects.create(
-                    pk_number=self.spk_number, 
-                    spk=self, 
-                    start_date=self.start_date,
-                    end_date=self.end_date,
-                    execution_time=self.execution_time,
-                    maintenance_time=self.maintenance_time,
-                    status='PENGERJAAN'
-                )
-
+        if self.is_without_pk and not PK.objects.filter(spk=self).exists():
+            PK.objects.create(
+                pk_number=self.spk_number, 
+                spk=self, 
+                start_date=self.start_date,
+                end_date=self.end_date,
+                execution_time=self.execution_time,
+                maintenance_time=self.maintenance_time,
+                status='PENGERJAAN'
+            )
+    
     def __str__(self):
         return self.spk_number
     
