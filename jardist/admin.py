@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import Group, User
 from jardist.forms.admin_form import UserAdminForm
-from nested_admin import NestedModelAdmin, NestedTabularInline
 
 from jardist.models.contract_models import SPK, PK, PKStatusAudit
 from jardist.models.role_models import Department, Role
@@ -88,71 +87,21 @@ class UserAdmin(DefaultUserAdmin):
 
 # Role and Department Admin
 class DepartmentAdmin(AuditableAdmin):
-    fieldsets = (
-        ('Department Details', {
-            'classes': ('collapse',),
-            'fields': ('name', 'description'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
     list_display = ['name', 'description'] + AuditableAdmin.list_display
 
 class RoleAdmin(AuditableAdmin):
-    fieldsets = (
-        ('Role Details', {
-            'classes': ('collapse',),
-            'fields': ('name',),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
     list_display = ['name'] + AuditableAdmin.list_display
 
 # Contract Models Admin
+class PKInline(admin.TabularInline):
+    model = PK
+    extra = 1
 class SPKAdmin(AuditableAdmin):
-    fieldsets = (
-        ('SPK Details', {
-            'classes': ('collapse',),
-            'fields': ('spk_number', 'start_date', 'end_date', 'execution_time', 'maintenance_time', 'department', 'is_without_pk'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
     list_display = ['spk_number', 'start_date', 'end_date', 'execution_time', 'maintenance_time', 'department', 'is_without_pk'] + AuditableAdmin.list_display
-
-class PKAdmin(AuditableAdmin):
-    fieldsets = (
-        ('PK Details', {
-            'classes': ('collapse',),
-            'fields': ('pk_number', 'spk', 'start_date', 'end_date', 'execution_time', 'maintenance_time'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
-    list_display = ['pk_number', 'spk', 'start_date', 'end_date', 'execution_time', 'maintenance_time'] + AuditableAdmin.list_display
+    inlines = [PKInline]
 
 class PKStatusAuditAdmin(AuditableAdmin):
-    fieldsets = (
-        ('PK Status Audit Details', {
-            'classes': ('collapse',),
-            'fields': ('pk_instance', 'old_status', 'new_status'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
     list_display = ['pk_instance', 'old_status', 'new_status'] + AuditableAdmin.list_display
-
     search_fields = ['pk_instance__pk_number']
     list_filter = ['old_status', 'new_status']
     
@@ -167,114 +116,58 @@ class PKStatusAuditAdmin(AuditableAdmin):
     
 # Material Models Admin
 class MaterialCategoryAdmin(AuditableAdmin):
-    fieldsets = (
-        ('Material Category Details', {
-            'classes': ('collapse',),
-            'fields': ('name',),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
     list_display = ['name'] + AuditableAdmin.list_display
 
 class MaterialAdmin(AuditableAdmin):
-    fieldsets = (
-        ('Material Details', {
-            'classes': ('collapse',),
-            'fields': ('name', 'category', 'unit', 'price'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
     list_display = ['name', 'category', 'unit', 'price'] + AuditableAdmin.list_display
 
 # Task Models Admin
-class TaskTypeAdmin(AuditableAdmin):
-    fieldsets = (
-        ('Task Type Details', {
-            'classes': ('collapse',),
-            'fields': ('name', 'description'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
-    list_display = ['name', 'description'] + AuditableAdmin.list_display
+class SubTaskInline(admin.TabularInline):
+    model = SubTask
+    extra = 0
 
-class SubTaskTypeAdmin(AuditableAdmin):
-    fieldsets = (
-        ('SubTask Type Details', {
-            'classes': ('collapse',),
-            'fields': ('name', 'description'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
-    list_display = ['name', 'description'] + AuditableAdmin.list_display
-
-class SubTaskMaterialInline(NestedTabularInline):
+class SubTaskMaterialInline(admin.TabularInline):
     model = SubTaskMaterial
     extra = 0
 
-class SubTaskInline(NestedTabularInline):
-    model = SubTask
-    inlines = [SubTaskMaterialInline]
-    extra = 0
-    fields = ('sub_task_type', 'materials')
-    readonly_fields = ('materials',)
+class TaskTypeAdmin(AuditableAdmin):
+    list_display = ['name', 'description'] + AuditableAdmin.list_display
 
-    def materials(self, instance):
-        return ", ".join([str(material) for material in instance.materials.all()])
+class SubTaskTypeAdmin(AuditableAdmin):
+    list_display = ['name', 'description'] + AuditableAdmin.list_display
 
-class TaskAdmin(NestedModelAdmin, AuditableAdmin):
-    fieldsets = (
-        ('Task Details', {
-            'classes': ('collapse',),
-            'fields': ('task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time', 'rab'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
-    list_display = ['task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time'] + AuditableAdmin.list_display
+class TaskAdmin(AuditableAdmin):
+    list_display = ['task_name', 'pk_instance', 'task_type', 'customer_name', 'location', 'execution_time', 'maintenance_time', 'status'] + AuditableAdmin.list_display
     inlines = [SubTaskInline]
 
-class TemplateRABAdmin(AuditableAdmin):
-    fieldsets = (
-        ('Template RAB Details', {
-            'classes': ('collapse',),
-            'fields': ('task_type', 'rab'),
-        }),
-        ('Audit Details', {
-            'classes': ('collapse',),
-            'fields': AuditableAdmin.list_display,
-        }),
-    )
+class SubTaskAdmin(AuditableAdmin):
+    list_display = ['sub_task_type', 'task'] + AuditableAdmin.list_display
+    inlines = [SubTaskMaterialInline]
 
+class TemplateRABAdmin(AuditableAdmin):
     list_display = ['task_type', 'rab'] + AuditableAdmin.list_display
 
-# Register models
+# Unregister Default User and Group Admin
 admin.site.unregister(User)
 admin.site.unregister(Group)
+
+# Authorization Models
 admin.site.register(User, UserAdmin)
+admin.site.register(Group, GroupAdmin)
+admin.site.register(Department, DepartmentAdmin)
+admin.site.register(Role, RoleAdmin)
+
+# Contract Models
+admin.site.register(SPK, SPKAdmin)
+admin.site.register(PKStatusAudit, PKStatusAuditAdmin)
+
+# Material Models
+admin.site.register(MaterialCategory, MaterialCategoryAdmin)
+admin.site.register(Material, MaterialAdmin)
+
+# Task Models
 admin.site.register(TaskType, TaskTypeAdmin)
 admin.site.register(SubTaskType, SubTaskTypeAdmin)
 admin.site.register(Task, TaskAdmin)
-admin.site.register(SubTask, AuditableAdmin)
-admin.site.register(SPK, SPKAdmin)
-admin.site.register(Role, RoleAdmin)
-admin.site.register(PKStatusAudit, PKStatusAuditAdmin)
-admin.site.register(PK, PKAdmin)
-admin.site.register(MaterialCategory, MaterialCategoryAdmin)
-admin.site.register(Material, MaterialAdmin)
-admin.site.register(Group, GroupAdmin)
-admin.site.register(Department, DepartmentAdmin)
+admin.site.register(SubTask, SubTaskAdmin)
 admin.site.register(TemplateRAB, TemplateRABAdmin)

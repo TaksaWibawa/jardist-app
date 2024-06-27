@@ -393,6 +393,81 @@ h1, h2, h3, h4, h5, h6 {
   cursor: not-allowed;
 }
 
+.material-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  gap: 2rem;
+}
+
+.material-form .sub-task, .material-form .material-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.material-form h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.material-form .sub-task h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.1em;
+}
+
+.material-form .material-group h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.1em;
+}
+
+.material-form .material-group {
+  margin-top: 1rem;
+}
+
+.material-form table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.material-form th, .material-form td {
+  border: 1px solid #333;
+  padding-block: 0.15rem;
+  font-size: 0.9rem;
+}
+
+.material-form td input {
+  width: 100%;
+  border: 1px solid #333;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.material-form td {
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
 @media screen and (max-width: 768px) {
   .wrapper {
     padding-inline: 1rem;

@@ -15,4 +15,5 @@ urlpatterns = [
 
   path('task/create/', task_view.CreateTaskPage, name='create_task'),
   path('task/edit/<uuid:task_id>/', task_view.EditTaskPage, name='edit_task'),
+  path('task/realization/update/<uuid:task_id>/', task_view.UpdateRealizationTaskPage, name='update_realization_task'),
 ]

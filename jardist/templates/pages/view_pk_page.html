@@ -89,7 +89,7 @@
         {% endfor %}
         <div class="task-actions">
           <a href={% url 'edit_task' task_data.task.id %} class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
-          <a href="#" class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
+          <a href={% url 'update_realization_task' task_data.task.id %}  class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
         </article>
         <div class="pagination">
           {% if tasks_page.has_previous %}

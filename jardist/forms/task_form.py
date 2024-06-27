@@ -144,19 +144,15 @@ class TaskForm(forms.ModelForm):
                         material_category = MaterialCategory.objects.create(name=kategori_material)
                         material_categories.append(material_category)
 
-                    # check if material already exists, if not create new
-                    material = next((m for m in materials if m.name.lower() == nama_material.lower()), None)
+                    # check if material already exists in the same category, if not create new
+                    material = next((m for m in materials if m.name.lower() == nama_material.lower() and m.category.name.lower() == kategori_material.lower()), None)
                     if not material:
                         material = Material.objects.create(name=nama_material, category=material_category, unit=satuan, price=bahan)
                         materials.append(material)
 
-                    # create sub task and sub task materials. If sub task already exists, give an error that the material is duplicated in one sub task
-                    sub_task, created = SubTask.objects.update_or_create(task=instance, sub_task_type=sub_task_type)
-                    if not SubTaskMaterial.objects.filter(subtask=sub_task, material=material).exists():
-                        sub_task_materials_to_create.append(SubTaskMaterial(subtask=sub_task, material=material, labor_price=upah, rab_client_volume=vol_pln, rab_contractor_volume=vol_pemb))
-                    else:
-                        self.add_error('rab', f"Material {material.name} duplikat pada sub pekerjaan {sub_task.sub_task_type.name}")
-                        return None
+                    # create sub task and sub task materials
+                    sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
+                    sub_task_materials_to_create.append(SubTaskMaterial(subtask=sub_task, material=material, labor_price=upah, rab_client_volume=vol_pln, rab_contractor_volume=vol_pemb))
 
             # do bulk create for sub tasks and sub task materials
             SubTask.objects.bulk_create(sub_tasks_to_create)

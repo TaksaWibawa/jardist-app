@@ -1,0 +1,116 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load numbering %}
+{% load os %}
+
+{% block page_title %}Update Realisasi Pekerjaan{% endblock page_title %}
+
+{% block title %}UPDATE REALISASI PEKERJAAN{% endblock title %}
+
+{% block content %}
+  <section class="form-page">
+    <div class="form-page_content">
+      <form method="post" class="form-page__content__form" id="realization-task-form">
+        {% csrf_token %}
+        <div class="row my-3">
+          <div class="input-group">{{ form.spk_instance }}</div>
+          {% for error in form.pk_instance.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="row mb-3">
+          <label for="{{ form.pk_instance.id_for_label }}">{{ form.pk_instance.label }}</label>
+          <div class="input-group">{{ form.pk_instance }}</div>
+          {% for error in form.pk_instance.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+            {{ form.location }} 
+            {% for error in form.location.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.end_date_pk.id_for_label }}">{{ form.end_date_pk.label }}</label>
+            {{ form.end_date_pk }} 
+            {% for error in form.end_date_pk.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.customer_name.id_for_label }}">{{ form.customer_name.label }}</label>
+            {{ form.customer_name }} 
+            {% for error in form.customer_name.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.task_type.id_for_label }}">{{ form.task_type.label }}</label>
+            {{ form.task_type }} 
+            {% for error in form.task_type.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+            {{ form.status }} 
+            {% for error in form.status.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3"></div>
+        </div>
+
+        <div class="material-form">
+          <h3>Realisasi Material</h3>
+          {% for sub_task, categories in formsets.items %}
+            <div class="sub-task">
+              <h4>{{ forloop.counter|int_to_alphabet }}. {{ sub_task.sub_task_type.name }}</h4>
+              {% for category, materials in categories.items %}
+                <div class="material-group">
+                  <h5>{{ forloop.counter|int_to_roman }}. {{ category.name }}</h5>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th width="50%" rowspan="2" style="padding-left: 10px;">Nama Material</th>
+                        <th width="10%" rowspan="2" class="text-center">Satuan</th>
+                        <th colspan="2" width="40%" class="text-center">Realisasi</th>
+                      </tr>
+                      <tr>
+                        <th width="20%" class="text-center">Client</th>
+                        <th width="20%" class="text-center">Pemborong</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for material, formset in materials %}
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                          <tr>
+                            {{ form.id }}
+                            <td>{{ material.name }}</td>
+                            <td class="text-center">{{ material.unit }}</td>
+                            <td class="text-center">{{ form.realization_client_volume }}</td>
+                            <td class="text-center">{{ form.realization_contractor_volume }}</td>
+                          </tr>
+                        {% endfor %}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" value="save_realization" class="btn btn-primary">Simpan</button>
+      </form>
+    </div>
+  </section>
+{% endblock content %}

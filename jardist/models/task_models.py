@@ -16,6 +16,10 @@ class TaskType(Auditable):
         verbose_name = 'Jenis Pekerjaan'
         verbose_name_plural = 'Jenis Pekerjaan'
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.title()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
     
@@ -28,10 +32,19 @@ class SubTaskType(Auditable):
         verbose_name = 'Sub Jenis Pekerjaan'
         verbose_name_plural = 'Sub Jenis Pekerjaan'
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.title()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
 class Task(Auditable):
+    STATUS_CHOICES = (
+        ('On Progress', 'On Progress'),
+        ('Done', 'Done'),
+    )
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     task_name = models.CharField(max_length=100, verbose_name='Nama Pekerjaan')
     pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, verbose_name='No. PK')
@@ -41,6 +54,7 @@ class Task(Auditable):
     execution_time = models.IntegerField(verbose_name='Waktu Pelaksanaan')
     maintenance_time = models.IntegerField(verbose_name='Waktu Pemeliharaan')
     rab = models.FileField(upload_to='static/jardist/files/rab/', null=True, blank=True, verbose_name='RAB')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='On Progress', verbose_name='Status')
 
     class Meta:
         verbose_name = 'Pekerjaan'
@@ -90,14 +104,15 @@ class SubTask(Auditable):
 class SubTaskMaterial(models.Model):
     subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
-    labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah')
-    rab_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (RAB)', null=True, blank=True)
-    rab_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (RAB)', null=True, blank=True)
-    realization_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (Realisasi)', null=True, blank=True)
-    realization_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (Realisasi)', null=True, blank=True)
+    labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah', null=True, blank=True)
+    rab_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (RAB)', null=True, blank=True, default=0)
+    rab_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (RAB)', null=True, blank=True, default=0)
+    realization_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (Realisasi)', null=True, blank=True, default=0)
+    realization_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (Realisasi)', null=True, blank=True, default=0)
 
     class Meta:
-        unique_together = ('subtask', 'material')
+        verbose_name = 'Material Sub Pekerjaan'
+        verbose_name_plural = 'Material Sub Pekerjaan'
 
     def __str__(self):
         return self.material.name

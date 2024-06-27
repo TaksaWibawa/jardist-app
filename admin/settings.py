@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'fontawesomefree',
     'django_xhtml2pdf',
-    'nested_admin',
+    'admin_reorder',
 
     # Default
     'django.contrib.admin',
@@ -62,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'admin.urls'
@@ -143,3 +145,31 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ADMIN_REORDER = (
+    {'app': 'auth', 'label': 'Autorisasi', 'models': (
+        'auth.User',
+        'auth.Group',
+        'jardist.Role',
+        'jardist.Department',
+    )},
+
+    {'app': 'jardist', 'label': 'Kontrak', 'models': (
+        'jardist.SPK',
+        'jardist.PKStatusAudit',
+    )},
+
+    {'app': 'jardist', 'label': 'Pekerjaan', 'models': (
+        'jardist.TaskType',
+        'jardist.SubTaskType',
+        'jardist.Task',
+        'jardist.SubTask',
+        'jardist.SubTaskMaterial',
+        'jardist.TemplateRAB',
+    )},
+
+    {'app': 'jardist', 'label': 'Material', 'models': (
+        'jardist.MaterialCategory',
+        'jardist.Material',
+    )},
+)
