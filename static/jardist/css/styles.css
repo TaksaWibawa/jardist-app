@@ -343,6 +343,10 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.9rem;
 }
 
+.material-group tr:hover {
+  background-color: #f4f4f4;
+}
+
 .material-group td {
   font-weight: 500;
 }
@@ -461,6 +465,28 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.5rem 0.75rem;
 }
 
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.form-actions button, .form-actions a {
+  width: 150px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
 .search-bar {
   display: flex;
   flex-direction: column;
@@ -488,34 +514,34 @@ h1, h2, h3, h4, h5, h6 {
     height: auto;
   }
 
-  .create-spk-page, .create-pk-page, .create-task-page, .view-pk-page {
+  .form-page {
     padding-block: 1rem;
   }
 
-  .view-pk-page .pk-info {
+  .pk-info {
     margin-bottom: 1rem;
   }
 
-  .view-pk-page .pk-info__fields {
+  .pk-info__fields {
     grid-template-columns: 1fr;
   }
 
-  .view-pk-page .pk-info__field {
+  .pk-info__field {
     padding-block: 0.25rem;
   }
 
-  .view-pk-page .pk-actions {
+  .pk-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
   }
 
-  .view-pk-page .pk-actions .action__button {
+  .pk-actions .action__button {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
 
-  .view-pk-page .task {
+  .task {
     padding: 10px;
   }
 

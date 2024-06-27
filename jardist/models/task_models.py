@@ -105,10 +105,10 @@ class SubTaskMaterial(models.Model):
     subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah', null=True, blank=True)
-    rab_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (RAB)', null=True, blank=True, default=0)
-    rab_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (RAB)', null=True, blank=True, default=0)
-    realization_client_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Client (Realisasi)', null=True, blank=True, default=0)
-    realization_contractor_volume = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Volume Pemborong (Realisasi)', null=True, blank=True, default=0)
+    rab_client_volume = models.IntegerField(verbose_name='Volume Client (RAB)', null=True, blank=True, default=0)
+    rab_contractor_volume = models.IntegerField(verbose_name='Volume Pemborong (RAB)', null=True, blank=True, default=0)
+    realization_client_volume = models.IntegerField(verbose_name='Volume Client (Realisasi)', null=True, blank=True, default=0)
+    realization_contractor_volume = models.IntegerField(verbose_name='Volume Pemborong (Realisasi)', null=True, blank=True, default=0)
 
     class Meta:
         verbose_name = 'Material Sub Pekerjaan'

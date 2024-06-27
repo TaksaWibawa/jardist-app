@@ -13,8 +13,9 @@
       <form method="post" class="form-page__content__form" id="realization-task-form">
         {% csrf_token %}
         <div class="row my-3">
+          <label for="{{ form.spk_instance.id_for_label }}">{{ form.spk_instance.label }}</label>
           <div class="input-group">{{ form.spk_instance }}</div>
-          {% for error in form.pk_instance.errors %}
+          {% for error in form.spk_instance.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
         </div>
@@ -109,8 +110,35 @@
           {% endfor %}
         </div>
 
-        <button type="submit" value="save_realization" class="btn btn-primary">Simpan</button>
+        <div class="form-actions">
+          <button type="submit" value="save_realization" class="btn btn-primary">Simpan</button>
+          <a href="#" class="btn btn-secondary">Tambah Dokumentasi</a>
       </form>
     </div>
   </section>
 {% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('realization-task-form');
+      const fieldsToDisable = ['spk_instance', 'pk_instance', 'location', 'end_date_pk', 'customer_name', 'task_type'];
+
+      fieldsToDisable.forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.setAttribute('disabled', '');
+        field.style.cursor = 'not-allowed';
+
+        form.addEventListener('submit', function(event) {
+          if (field.disabled) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = field.name;
+            hiddenInput.value = field.value;
+            form.appendChild(hiddenInput);
+          }
+        });
+      });
+    });
+  </script>
+{% endblock scripts %}

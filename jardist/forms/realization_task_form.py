@@ -11,8 +11,8 @@ TASK_STATUS_CHOICES = [
 
 
 class RealizationTaskForm(forms.ModelForm):
-    spk_instance = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'spk_instance'}))
-    end_date_pk = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'id': 'end_date_pk', 'type': 'date'}))
+    spk_instance = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'spk_instance'}), label='No. SPK')
+    end_date_pk = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'id': 'end_date_pk', 'type': 'date'}), label='Tanggal Berakhir PK')
 
     class Meta:
         model = Task
