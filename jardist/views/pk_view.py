@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
 from jardist.forms.pk_form import PKForm
+from jardist.forms.bast_form import BASTForm
 from jardist.models.contract_models import SPK, PK
 from jardist.models.task_models import Task
 from jardist.services.task_service import get_sub_tasks_materials_by_category
@@ -51,6 +52,23 @@ def EditPKPage(request, pk_id):
 
     return render(request, 'pages/edit_pk_page.html', context)
 
+def UpdateBASTPage(request, pk_id):
+    pk = PK.objects.get(id=pk_id)
+    form = BASTForm(request.POST or None, instance=pk)
+    tasks = Task.objects.filter(pk_instance=pk).order_by('id')
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data berhasil disimpan')
+            return redirect('view_pk', pk_id=pk_id)
+        else:
+            messages.error(request, 'Data gagal disimpan')
+        
+    context = {'form': form, 'pk': pk, 'tasks': tasks}
+
+    return render(request, 'pages/update_bast_page.html', context)
+
 def ViewPKPage(request, pk_id):
     pk = PK.objects.get(id=pk_id)
     tasks = Task.objects.filter(pk_instance=pk).prefetch_related('subtask_set__materials').order_by('id')
@@ -76,33 +94,3 @@ def ViewPKPage(request, pk_id):
 
     context = {'pk': pk, 'tasks_page_data': tasks_page_data, 'tasks_page': tasks_page}
     return render(request, 'pages/view_pk_page.html', context)
-
-def check_pk_in_spk(request, **kwargs):
-    spk_id = kwargs.get('spk_id')
-    try:
-        spk = SPK.objects.get(id=spk_id)
-        data = {
-            'is_without_pk': spk.is_without_pk,
-            'spk': spk.spk_number,
-            'start_date': spk.start_date,
-            'end_date': spk.end_date,
-            'execution_time': spk.execution_time,
-            'maintenance_time': spk.maintenance_time
-        }
-        return JsonResponse(data)
-    except SPK.DoesNotExist:
-        messages.error(request, 'SPK not found')
-        return JsonResponse({'error': 'SPK not found'}, status=404)
-    
-def get_pk_data(request):
-    pk_id = request.GET.get('pk_id')
-    field = request.GET.get('field', 'execution_time')
-
-    try:
-        pk = PK.objects.get(id=pk_id)
-        if hasattr(pk, field):
-            return JsonResponse({field: getattr(pk, field)})
-        else:
-            return JsonResponse({'error': f'Field {field} not found'}, status=400)
-    except PK.DoesNotExist:
-        return JsonResponse({'error': 'PK not found'}, status=404)

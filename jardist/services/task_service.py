@@ -20,7 +20,7 @@ def get_sub_tasks_materials_by_category(task, sort_by='rab', search=''):
             materials_by_category.setdefault(stm.category, []).append(material)
 
         sorted_materials_by_category = {}
-        for category in sorted(materials_by_category.keys(), key=lambda x: 0 if x.name == 'Material Utama' else 1 if x.name == 'Material Non Utama' else 2):
+        for category in sorted(materials_by_category.keys(), key=lambda x: 0 if x.name == 'Material Utama' else 1 if x.name == 'Material Non Utama' else 2 if x.name == 'Lain - Lain' else 3):
             sorted_materials = sorted(materials_by_category[category], key=lambda x: (-x.client_volume if x.client_volume is not None else 0, -x.contractor_volume if x.contractor_volume is not None else 0, x.name))
             sorted_materials_by_category[category] = sorted_materials
 

@@ -31,7 +31,6 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 
-
 .toast-container {
   position: fixed;
   bottom: 0;
@@ -94,12 +93,6 @@ h1, h2, h3, h4, h5, h6 {
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   row-gap: 2.5rem;
-}
-
-@media screen and (max-width: 768px) {
-  .home-page__content {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .home-page__content__item {
@@ -331,25 +324,6 @@ h1, h2, h3, h4, h5, h6 {
   text-underline-offset: 0.1em;
 }
 
-.material-group table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.material-group th, .material-group td {
-  border: 1px solid #333;
-  padding-block: 0.15rem;
-  font-size: 0.9rem;
-}
-
-.material-group tr:hover {
-  background-color: #f4f4f4;
-}
-
-.material-group td {
-  font-weight: 500;
-}
-
 .view-pk-page .info-item {
   display: grid;
   grid-template-columns: 0.75fr 1.5fr;
@@ -439,30 +413,6 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 1rem;
 }
 
-.material-form table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.material-form th, .material-form td {
-  border: 1px solid #333;
-  padding-block: 0.15rem;
-  font-size: 0.9rem;
-}
-
-.material-form td input {
-  width: 100%;
-  border: 1px solid #333;
-  border-radius: 0.5rem;
-  text-align: center;
-  font-weight: 500;
-}
-
-.material-form td {
-  font-weight: 500;
-  padding: 0.5rem 0.75rem;
-}
-
 .form-actions {
   display: flex;
   align-items: center;
@@ -472,7 +422,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-actions button, .form-actions a {
-  width: 150px;
+  width: 200px;
   height: 50px;
   display: flex;
   justify-content: center;
@@ -512,9 +462,31 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0.5rem;
 }
 
+.search-bar button {
+  width: 150px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.task-list .task-list__end-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.task-list__end-date span {
+  font-weight: 700;
+}
+
 @media screen and (max-width: 768px) {
   .wrapper {
     padding-inline: 1rem;
+    align-items: center;
+    justify-content: center;
   }
 
   .header h1 {
@@ -523,7 +495,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .home-page__content {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
     row-gap: 1.5rem;
   }
@@ -578,5 +550,13 @@ h1, h2, h3, h4, h5, h6 {
   .pagination a, .pagination .current, .pagination .disabled {
     width: 100%;
     text-align: center;
+  }
+
+  .search-bar {
+    justify-content: center;
+  }
+
+  .search-bar input {
+    width: 100%;
   }
 }

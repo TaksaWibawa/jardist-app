@@ -1,5 +1,6 @@
 from django.urls import path
 from jardist.views import home_view, spk_view, pk_view, task_view
+from jardist.services import pk_service
 
 urlpatterns = [
   path('', home_view.HomePage, name='home'),
@@ -10,8 +11,9 @@ urlpatterns = [
   path('pk/create', pk_view.CreatePKPage, name='create_pk'),
   path('pk/<uuid:pk_id>/view', pk_view.ViewPKPage, name='view_pk'),
   path('pk/<uuid:pk_id>/edit', pk_view.EditPKPage, name='edit_pk'),
-  path('pk/get_pk_data', pk_view.get_pk_data, name='get_pk_data'),
-  path('pk/check_pk_in_spk/<uuid:spk_id>', pk_view.check_pk_in_spk, name='check_pk_in_spk'),
+  path('pk/<uuid:pk_id>/update-bast', pk_view.UpdateBASTPage, name='update_bast'),
+  path('pk/get_pk_data', pk_service.get_pk_data, name='get_pk_data'),
+  path('pk/check_pk_in_spk/<uuid:spk_id>', pk_service.check_pk_in_spk, name='check_pk_in_spk'),
 
   path('task/create', task_view.CreateTaskPage, name='create_task'),
   path('task/<uuid:task_id>/edit', task_view.EditTaskPage, name='edit_task'),

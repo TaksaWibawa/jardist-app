@@ -1,0 +1,114 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load numbering %}
+{% load os %}
+{% load formatting %}
+
+{% block page_title %}Update Tanggal BAST I{% endblock page_title %}
+
+{% block title %}UPDATE TANGGAL BAST I{% endblock title %}
+
+{% block content %}
+  <section class="form-page">
+    <div class="form-page_content">
+      <form method="post" class="form-page__content__form" id="bast-form">
+        {% csrf_token %}
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.spk_instance.id_for_label }}">{{ form.spk_instance.label }}</label>
+            <div class="input-group">{{ form.spk_instance }}</div>
+            {% for error in form.spk_instance.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.pk_number.id_for_label }}">{{ form.pk_number.label }}</label>
+            <div class="input-group">{{ form.pk_number }}</div>
+            {% for error in form.pk_number.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md-6 mb-3">
+            <label for="{{ form.bast_date.id_for_label }}">{{ form.bast_date.label }}</label>
+            {{ form.bast_date }} 
+            <button type="button" id="populate-date" class="btn btn-secondary btn-sm mt-2">Isi dengan Tanggal Berakhir PK</button>
+            {% for error in form.bast_date.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6 mb-3"></div>
+        </div>
+
+        <div class="task-list">
+          <p class="task-list__end-date">Tanggal Berakhir PK : 
+            <span class="task-list__end-date__value text-danger">{{ pk.end_date }}</span>
+          </p>
+          {% if tasks %}
+            <table class="table fixed">
+              <thead>
+                <tr>
+                  <th scope="col" width="20%">Nama Pekerjaan</th>
+                  <th scope="col" width="20%">Jenis Pekerjaan</th>
+                  <th scope="col" width="20%">Nama Pelanggan</th>
+                  <th scope="col" width="20%">Lokasi</th>
+                  <th scope="col" width="10%">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for task in tasks %}
+                  <tr>
+                    <td>{{ task.task_name }}</td>
+                    <td>{{ task.task_type }}</td>
+                    <td>{{ task.customer_name }}</td>
+                    <td>{{ task.location }}</td>
+                    <td>{{ task.status }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="alert alert-info">Tidak ada pekerjaan yang tersedia</p>
+          {% endif %}
+        </div>
+
+        <div class="form-actions flex-column">
+          <button type="submit" value="save_realization" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('bast-form');
+      const fieldsToDisable = ['spk_instance', 'pk_number'];
+      const populateDateButton = document.getElementById('populate-date');
+      const bastDateField = document.getElementById('bast_date');
+      const pkEndDate = "{{ pk.end_date|date:'Y-m-d' }}";
+    
+      fieldsToDisable.forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.setAttribute('disabled', '');
+        field.style.cursor = 'not-allowed';
+    
+        form.addEventListener('submit', function(event) {
+          if (field.disabled) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = field.name;
+            hiddenInput.value = field.value;
+            form.appendChild(hiddenInput);
+          }
+        });
+      });
+    
+      populateDateButton.addEventListener('click', function() {
+        bastDateField.value = pkEndDate;
+      });
+    });
+  </script>
+{% endblock scripts %}
