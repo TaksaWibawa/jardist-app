@@ -3,7 +3,7 @@ from jardist.models.task_models import SubTaskMaterial
 
 def get_sub_tasks_materials_by_category(task, sort_by='rab', search=''):
     sub_tasks_materials_by_category = {}
-    sub_task_materials = SubTaskMaterial.objects.filter(subtask__task=task, material__name__icontains=search).order_by('subtask').select_related('subtask', 'material', 'material__category')
+    sub_task_materials = SubTaskMaterial.objects.filter(subtask__task=task, material__name__icontains=search).order_by('subtask').select_related('subtask', 'material', 'category')
     sub_task_materials_by_sub_task = {sub_task: list(stms) for sub_task, stms in groupby(sub_task_materials, key=lambda x: x.subtask)}
 
     for sub_task, stms in sub_task_materials_by_sub_task.items():
@@ -16,7 +16,7 @@ def get_sub_tasks_materials_by_category(task, sort_by='rab', search=''):
             else:
                 material.client_volume = stm.rab_client_volume
                 material.contractor_volume = stm.rab_contractor_volume
-            materials_by_category.setdefault(material.category, []).append(material)
+            materials_by_category.setdefault(stm.category, []).append(material)
 
         sorted_materials_by_category = {}
         for category in sorted(materials_by_category.keys(), key=lambda x: 0 if x.name == 'Material Utama' else 1 if x.name == 'Material Non Utama' else 2):

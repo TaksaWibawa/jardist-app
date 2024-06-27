@@ -28,7 +28,6 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   position: relative;
 }
 
@@ -417,7 +416,6 @@ h1, h2, h3, h4, h5, h6 {
 .material-form h3 {
   font-size: 1.75rem;
   font-weight: 700;
-  text-align: center;
   text-transform: uppercase;
 }
 
@@ -467,6 +465,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-actions {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 1rem;
   width: 100%;
@@ -487,11 +486,30 @@ h1, h2, h3, h4, h5, h6 {
   transition: background-color 0.3s ease;
 }
 
+.link-group {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.form-actions button {
+  background-color: #007BFF;
+  color: #fff;
+}
+
 .search-bar {
   display: flex;
-  flex-direction: column;
   justify-content: flex-end;
+  width: 100%;
   gap: 1rem;
+}
+
+.search-bar input {
+  width: 300px;
+  padding: 0.5rem;
+  border: 1px solid #333;
+  border-radius: 0.5rem;
 }
 
 @media screen and (max-width: 768px) {

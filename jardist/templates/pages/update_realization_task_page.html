@@ -68,51 +68,13 @@
           </div>
           <div class="form-group col-md-6 mb-3"></div>
         </div>
-
-        <div class="material-form">
-          <h3>Realisasi Material</h3>
-          {% for sub_task, categories in formsets.items %}
-            <div class="sub-task">
-              <h4>{{ forloop.counter|int_to_alphabet }}. {{ sub_task.sub_task_type.name }}</h4>
-              {% for category, materials in categories.items %}
-                <div class="material-group">
-                  <h5>{{ forloop.counter|int_to_roman }}. {{ category.name }}</h5>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th width="50%" rowspan="2" style="padding-left: 10px;">Nama Material</th>
-                        <th width="10%" rowspan="2" class="text-center">Satuan</th>
-                        <th colspan="2" width="40%" class="text-center">Realisasi</th>
-                      </tr>
-                      <tr>
-                        <th width="20%" class="text-center">Client</th>
-                        <th width="20%" class="text-center">Pemborong</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for material, formset in materials %}
-                        {{ formset.management_form }}
-                        {% for form in formset %}
-                          <tr>
-                            {{ form.id }}
-                            <td>{{ material.name }}</td>
-                            <td class="text-center">{{ material.unit }}</td>
-                            <td class="text-center">{{ form.realization_client_volume }}</td>
-                            <td class="text-center">{{ form.realization_contractor_volume }}</td>
-                          </tr>
-                        {% endfor %}
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              {% endfor %}
-            </div>
-          {% endfor %}
-        </div>
-
-        <div class="form-actions">
+        <div class="form-actions flex-column">
           <button type="submit" value="save_realization" class="btn btn-primary">Simpan</button>
-          <a href="#" class="btn btn-secondary">Tambah Dokumentasi</a>
+          <div class="link-group">
+            <a href="#" class="btn btn-secondary">Tambah Dokumentasi</a>
+            <a href={% url 'update_realization_material' task.id %} class="btn btn-secondary">Ubah Realisasi Material</a>
+          </div>
+        </div>
       </form>
     </div>
   </section>

@@ -1,11 +1,12 @@
-import pandas as pd
-from jardist.models.task_models import Task, TaskType
-from jardist.models.task_models import SubTask, SubTaskType, SubTaskMaterial, TemplateRAB
-from jardist.models.material_models import Material, MaterialCategory
-from jardist.models.contract_models import PK
-from jardist.constants import TASK_FORM_FIELDS
-from django.db import transaction
 from django import forms
+from django.db import transaction
+from jardist.constants import TASK_FORM_FIELDS
+from jardist.models.contract_models import PK
+from jardist.models.material_models import Material, MaterialCategory
+from jardist.models.task_models import SubTask, SubTaskType, SubTaskMaterial, TemplateRAB
+from jardist.models.task_models import Task, TaskType
+from jardist.utils import clean_decimal_field
+import pandas as pd
 
 class TaskForm(forms.ModelForm):
     pk_instance = forms.ModelChoiceField(queryset=PK.objects.all(), empty_label='Pilih No. PK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'pk_instance'}), label='No. PK')
@@ -116,15 +117,16 @@ class TaskForm(forms.ModelForm):
             sub_tasks_to_create = []
             sub_task_materials_to_create = []
 
-            # preserve task types, sub task types, material categories, and materials in memory
+            # preserve task types, sub task types, and materials in memory
             task_types = list(TaskType.objects.all())
             sub_task_types = list(SubTaskType.objects.all())
-            material_categories = list(MaterialCategory.objects.all())
             materials = list(Material.objects.all())
 
             # iterate over the rows in the csv file
             for row in reader:
                 jenis_pekerjaan, sub_jenis_pekerjaan, kategori_material, nama_material, satuan, bahan, upah, vol_pln, vol_pemb = row
+
+                bahan, upah, vol_pln, vol_pemb = map(clean_decimal_field, [bahan, upah, vol_pln, vol_pemb])
 
                 # check first for task type
                 task_type = next((tt for tt in task_types if tt.name.lower() == jenis_pekerjaan.lower()), None)
@@ -138,21 +140,15 @@ class TaskForm(forms.ModelForm):
                         sub_task_type.task_types.add(task_type)
                         sub_task_types.append(sub_task_type)
 
-                    # check if material category already exists, if not create new
-                    material_category = next((mc for mc in material_categories if mc.name.lower() == kategori_material.lower()), None)
-                    if not material_category:
-                        material_category = MaterialCategory.objects.create(name=kategori_material)
-                        material_categories.append(material_category)
-
-                    # check if material already exists in the same category, if not create new
-                    material = next((m for m in materials if m.name.lower() == nama_material.lower() and m.category.name.lower() == kategori_material.lower()), None)
+                    # check if material already exists, if not create new
+                    material = next((m for m in materials if m.name.lower() == nama_material.lower()), None)
                     if not material:
-                        material = Material.objects.create(name=nama_material, category=material_category, unit=satuan, price=bahan)
+                        material = Material.objects.create(name=nama_material, unit=satuan, price=bahan)
                         materials.append(material)
 
                     # create sub task and sub task materials
                     sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
-                    sub_task_materials_to_create.append(SubTaskMaterial(subtask=sub_task, material=material, labor_price=upah, rab_client_volume=vol_pln, rab_contractor_volume=vol_pemb))
+                    sub_task_materials_to_create.append(SubTaskMaterial(subtask=sub_task, material=material, labor_price=upah, rab_client_volume=vol_pln, rab_contractor_volume=vol_pemb, category=MaterialCategory.objects.get(name__iexact=kategori_material)))
 
             # do bulk create for sub tasks and sub task materials
             SubTask.objects.bulk_create(sub_tasks_to_create)

@@ -4,7 +4,7 @@ from jardist.constants import TASK_FORM_FIELDS
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.exceptions import ValidationError
-from .material_models import Material
+from .material_models import Material, MaterialCategory
 from .contract_models import PK
 from .base_models.audit_model import Auditable
 
@@ -104,6 +104,7 @@ class SubTask(Auditable):
 class SubTaskMaterial(models.Model):
     subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    category = models.ForeignKey(MaterialCategory, on_delete=models.CASCADE, verbose_name='Kategori Material', default=1)
     labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah', null=True, blank=True)
     rab_client_volume = models.IntegerField(verbose_name='Volume Client (RAB)', null=True, blank=True, default=0)
     rab_contractor_volume = models.IntegerField(verbose_name='Volume Pemborong (RAB)', null=True, blank=True, default=0)

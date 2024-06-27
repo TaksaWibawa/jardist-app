@@ -18,6 +18,19 @@ def remove_task_types(apps, schema_editor):
     TaskType = apps.get_model('jardist', 'TaskType')
     TaskType.objects.all().delete()
 
+def add_material_categories(apps, schema_editor):
+    MaterialCategory = apps.get_model('jardist', 'MaterialCategory')
+    MaterialCategory.objects.bulk_create([
+        MaterialCategory(name='Material Utama'),
+        MaterialCategory(name='Material Non Utama'),
+        MaterialCategory(name='Lain - Lain'),
+        MaterialCategory(name='Kerja Tambah'),
+    ])
+
+def remove_material_categories(apps, schema_editor):
+    MaterialCategory = apps.get_model('jardist', 'MaterialCategory')
+    MaterialCategory.objects.all().delete()
+
 def add_roles(apps, schema_editor):
     Role = apps.get_model('jardist', 'Role')
     Role.objects.bulk_create([
@@ -64,4 +77,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(add_roles, remove_roles),
         migrations.RunPython(add_departments, remove_departments),
         migrations.RunPython(add_task_types, remove_task_types),
+        migrations.RunPython(add_material_categories, remove_material_categories),
     ]

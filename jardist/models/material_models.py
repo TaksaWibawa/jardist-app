@@ -3,6 +3,7 @@ from .base_models.audit_model import Auditable
 
 class MaterialCategory(Auditable):
     name = models.CharField(max_length=100, unique=True, db_index=True, verbose_name='Nama Kategori Material')
+    description = models.CharField(max_length=200, null=True, blank=True, verbose_name='Deskripsi')
 
     class Meta:
         verbose_name = 'Kategori Material'
@@ -17,7 +18,6 @@ class MaterialCategory(Auditable):
 
 class Material(Auditable):
     name = models.CharField(max_length=100, db_index=True, verbose_name='Nama Material')
-    category = models.ForeignKey(MaterialCategory, on_delete=models.CASCADE, verbose_name='Kategori Material')
     unit = models.CharField(max_length=100, verbose_name='Satuan Material')
     price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Bahan')
 

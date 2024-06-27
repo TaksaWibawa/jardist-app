@@ -1,0 +1,74 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load numbering %}
+{% load os %}
+
+{% block page_title %}Update Realisasi Material{% endblock page_title %}
+
+{% block title %}UPDATE REALISASI MATERIAL{% endblock title %}
+
+{% block content %}
+  <section class="form-page">
+    <div class="form-page_content">
+      <div class="material-form mt-3">
+        <div class="form-actions">
+          <a href="#" class="btn btn-primary w-20">Tambah Material</a>
+          <form method="get" class="search-bar">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Cari material berdasarkan nama" class="form-control">
+            <button type="submit" class="btn btn-primary">Cari Material</button>
+          </form>
+        </div>
+        <form method="post" class="form-page__content__form" id="realization-task-material-form">
+          {% csrf_token %}
+          {% if not formsets %}
+            <div class="alert alert-info">Tidak ada material yang ditemukan</div>
+          {% else %}
+            {% for sub_task, categories in formsets.items %}
+            <div class="sub-task">
+              <h4>{{ forloop.counter|int_to_alphabet }}. {{ sub_task.sub_task_type.name }}</h4>
+               {% for category, materials in categories.items %}
+                 <div class="material-group">
+                   <h5>{{ forloop.counter|int_to_roman }}. {{ category.name }}</h5>
+                   <table>
+                     <thead>
+                       <tr>
+                         <th width="50%" rowspan="2" style="padding-left: 10px;">Nama Material</th>
+                         <th width="10%" rowspan="2" class="text-center">Satuan</th>
+                         <th colspan="2" width="40%" class="text-center">Realisasi</th>
+                       </tr>
+                       <tr>
+                         <th width="20%" class="text-center">Client</th>
+                         <th width="20%" class="text-center">Pemborong</th>
+                       </tr>
+                     </thead>
+                     <tbody>
+                       {% for material, formset in materials %}
+                         {{ formset.management_form }}
+                         {% for form in formset %}
+                           <tr>
+                             {{ form.id }}
+                             <td>{{ material.name }}</td>
+                             <td class="text-center">{{ material.unit }}</td>
+                             <td class="text-center">{{ form.realization_client_volume }}</td>
+                             <td class="text-center">{{ form.realization_contractor_volume }}</td>
+                           </tr>
+                         {% endfor %}
+                       {% endfor %}
+                     </tbody>
+                   </table>
+                 </div>
+               {% endfor %}
+             </div>
+            {% endfor %}
+          {% endif %}
+          <div class="form-actions">
+            <a href="{% url 'update_realization_task' task.id %}" class="btn btn-secondary">Kembali</a>
+            {% if formsets %}
+              <button type="submit" value="save_realization" class="btn btn-primary">Simpan Perubahan</button>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+{% endblock content %}
