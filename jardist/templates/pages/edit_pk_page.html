@@ -22,6 +22,13 @@
 
       let formSubmitted = false;
 
+      const isWithoutPk = {{ pk.spk.is_without_pk|yesno:"true,false" }};
+      if (isWithoutPk) {
+        const pkField = document.getElementById('pk_number');
+        pkField.disabled = true;
+        pkField.style.cursor = 'not-allowed';
+      }
+
       fieldsToDisable.forEach(fieldId => {
         const field = document.getElementById(fieldId);
         field.disabled = true;
@@ -36,15 +43,17 @@
             hiddenInput.value = field.value;
             form.appendChild(hiddenInput);
           }
+
+          if (isWithoutPk) {
+            const pkField = document.getElementById('pk_number');
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = pkField.name;
+            hiddenInput.value = pkField.value;
+            form.appendChild(hiddenInput);
+          }
         });
       });
-
-      const isWithoutPk = {{ pk.spk.is_without_pk|yesno:"true,false" }};
-      if (isWithoutPk) {
-        const pkField = document.getElementById('pk_number');
-        pkField.disabled = true;
-        pkField.style.cursor = 'not-allowed';
-      }
 
       const updateEndDate = () => {
         if (!formSubmitted) {
