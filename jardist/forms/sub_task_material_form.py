@@ -17,7 +17,6 @@ class SubTaskMaterialForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if show_type == 'rab':
-            print(show_type)
             del self.fields['realization_client_volume']
             del self.fields['realization_contractor_volume']
         else:
@@ -28,7 +27,6 @@ class BaseSubTaskMaterialFormSet(forms.BaseModelFormSet):
     def __init__(self, *args, **kwargs):
         initial_data = kwargs.pop('initial', [])
         self.show_type = kwargs.pop('show_type', 'rab')
-        print(self.show_type)
         super().__init__(*args, **kwargs)
 
         for form, initial in zip(self.forms, initial_data):

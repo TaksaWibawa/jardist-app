@@ -87,9 +87,14 @@
     </div>
   {% endif %}
   {% if task %}
-    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+    <div class="form-actions mt-3">
+      <a href={% url 'edit_task_material' task.id %} class="btn btn-secondary">Edit Material</a>
+      <button type="submit" class="btn btn-primary">Simpan</button>
+    </div>
   {% else %}
-    <button type="submit" name="save_and_continue" class="btn btn-primary">Simpan & Preview PK</button>
-    <button type="submit" name="save_and_add_another" class="btn btn-secondary">Tambah Pekerjaan Lain</button>
+    <div class="form-actions mt-3">
+      <button type="submit" name="save_and_continue" class="btn btn-primary">Simpan & Preview PK</button>
+      <button type="submit" name="save_and_add_another" class="btn btn-secondary">Tambah Pekerjaan Lain</button>
+    </div>
   {% endif %}
 </form>

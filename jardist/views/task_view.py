@@ -1,10 +1,9 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from jardist.forms.realization_task_form import RealizationTaskForm
-from jardist.forms.sub_task_material_form import SubTaskMaterialFormSet
 from jardist.forms.task_form import TaskForm
-from jardist.models.task_models import Task, SubTaskMaterial
-from jardist.services.task_service import get_sub_tasks_materials_by_category
+from jardist.models.task_models import Task
+from jardist.services.task_service import create_subtask_material_formsets
 
 def CreateTaskPage(request):
     pk_id = request.GET.get('pk_id', None)
@@ -51,35 +50,7 @@ def EditTaskPage(request, task_id):
 
 def EditTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
-    search = request.GET.get('search', '')
-
-    sub_tasks_materials_by_category = get_sub_tasks_materials_by_category(task, sort_by='rab', search=search)
-    formsets = {}
-    formsets_data = []
-
-    for sub_task, materials_by_category in sub_tasks_materials_by_category.items():
-        formsets[sub_task] = {}
-        for category, materials in materials_by_category.items():
-            material_formsets = []
-            for material in materials:
-                queryset = SubTaskMaterial.objects.filter(subtask=sub_task, material=material)
-                formset_initial_data = [
-                    {
-                        'rab_client_volume': stm.rab_client_volume if stm.rab_client_volume is not None else 0,
-                        'rab_contractor_volume': stm.rab_contractor_volume if stm.rab_contractor_volume is not None else 0
-                    } 
-                    for stm in queryset
-                ]
-                formset = SubTaskMaterialFormSet(
-                    request.POST or None,
-                    queryset=queryset,
-                    initial=formset_initial_data,
-                    prefix=f'{sub_task}_{category}_{material.id}'
-                )
-                material_formsets.append((material, formset))
-            
-            formsets[sub_task][category] = material_formsets
-            formsets_data.extend(material_formsets)
+    formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='rab')
 
     if request.method == 'POST':
         if all(formset.is_valid() for material, formset in formsets_data):
@@ -87,7 +58,7 @@ def EditTaskMaterialPage(request, task_id):
                 formset.save()
             
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('view_pk', pk_id=task.pk_instance.id)
+            return redirect('edit_task', task_id=task.id)
         else:
             messages.error(request, 'Data gagal disimpan')
         
@@ -115,36 +86,7 @@ def UpdateRealizationTaskPage(request, task_id):
 
 def UpdateRealizationTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
-    search = request.GET.get('search', '')
-
-    sub_tasks_materials_by_category = get_sub_tasks_materials_by_category(task, sort_by='realization', search=search)
-    formsets = {}
-    formsets_data = []
-
-    for sub_task, materials_by_category in sub_tasks_materials_by_category.items():
-        formsets[sub_task] = {}
-        for category, materials in materials_by_category.items():
-            material_formsets = []
-            for material in materials:
-                queryset = SubTaskMaterial.objects.filter(subtask=sub_task, material=material)
-                formset_initial_data = [
-                    {
-                        'realization_client_volume': stm.realization_client_volume if stm.realization_client_volume is not None else stm.rab_client_volume or 0,
-                        'realization_contractor_volume': stm.realization_contractor_volume if stm.realization_contractor_volume is not None else stm.rab_contractor_volume or 0
-                    } 
-                    for stm in queryset
-                ]
-                formset = SubTaskMaterialFormSet(
-                    request.POST or None,
-                    queryset=queryset,
-                    initial=formset_initial_data,
-                    show_type='realization',
-                    prefix=f'{sub_task}_{category}_{material.id}'
-                )
-                material_formsets.append((material, formset))
-            
-            formsets[sub_task][category] = material_formsets
-            formsets_data.extend(material_formsets)
+    formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='realization')
 
     if request.method == 'POST':
         if all(formset.is_valid() for material, formset in formsets_data):
@@ -152,7 +94,7 @@ def UpdateRealizationTaskMaterialPage(request, task_id):
                 formset.save()
 
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('view_pk', pk_id=task.pk_instance.id)
+            return redirect('update_realization_task', task_id=task.id)
         else:
             messages.error(request, 'Data gagal disimpan')
 
