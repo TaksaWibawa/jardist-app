@@ -143,12 +143,19 @@ class TaskForm(forms.ModelForm):
                     # check if material already exists, if not create new
                     material = next((m for m in materials if m.name.lower() == nama_material.lower()), None)
                     if not material:
-                        material = Material.objects.create(name=nama_material, unit=satuan, price=bahan)
+                        material = Material.objects.create(name=nama_material, unit=satuan)
                         materials.append(material)
 
                     # create sub task and sub task materials
                     sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
-                    sub_task_materials_to_create.append(SubTaskMaterial(subtask=sub_task, material=material, labor_price=upah, rab_client_volume=vol_pln, rab_contractor_volume=vol_pemb, category=MaterialCategory.objects.get(name__iexact=kategori_material)))
+                    sub_task_materials_to_create.append(SubTaskMaterial(
+                        subtask=sub_task, 
+                        material=material, 
+                        material_price=bahan,
+                        labor_price=upah, 
+                        rab_client_volume=vol_pln, 
+                        rab_contractor_volume=vol_pemb, 
+                        category=MaterialCategory.objects.get(name__iexact=kategori_material)))
 
             # do bulk create for sub tasks and sub task materials
             SubTask.objects.bulk_create(sub_tasks_to_create)

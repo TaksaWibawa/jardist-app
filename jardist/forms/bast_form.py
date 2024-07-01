@@ -21,9 +21,3 @@ class BASTForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance:
             self.fields['spk_instance'].initial = self.instance.spk
-
-    def clean_bast_date(self):
-        bast_date = self.cleaned_data['bast_date']
-        if self.instance.end_date and bast_date < self.instance.end_date:
-            raise forms.ValidationError('Tanggal BAST I tidak boleh lebih kecil dari tanggal berakhir PK')
-        return bast_date

@@ -33,7 +33,7 @@
           <div class="form-group col-md-6 mb-3">
             <label for="{{ form.bast_date.id_for_label }}">{{ form.bast_date.label }}</label>
             {{ form.bast_date }} 
-            <button type="button" id="populate-date" class="btn btn-secondary btn-sm mt-2">Isi dengan Tanggal Berakhir PK</button>
+            <button type="button" id="populate-date" class="btn btn-secondary btn-sm mt-2">Isi dengan Tanggal Mulai PK</button>
             {% for error in form.bast_date.errors %}
               <div class="text-danger">{{ error }}</div>
             {% endfor %}
@@ -88,7 +88,7 @@
       const fieldsToDisable = ['spk_instance', 'pk_number'];
       const populateDateButton = document.getElementById('populate-date');
       const bastDateField = document.getElementById('bast_date');
-      const pkEndDate = "{{ pk.end_date|date:'Y-m-d' }}";
+      const pkEndDate = "{{ pk.start_date|date:'Y-m-d' }}";
     
       fieldsToDisable.forEach(function(fieldId) {
         const field = document.getElementById(fieldId);

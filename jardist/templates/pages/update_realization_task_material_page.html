@@ -12,7 +12,7 @@
     <div class="form-page_content">
       <div class="material-form mt-3">
         <div class="form-actions">
-          <a href="#" class="btn btn-primary w-20">Tambah Material</a>
+          <button type="button" class="btn btn-primary w-20" data-bs-toggle="modal" data-bs-target="#addMaterialModal">Tambah Material</button>
           <form method="get" class="search-bar">
             <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Cari material berdasarkan nama" class="form-control">
             <button type="submit" class="btn btn-primary">Cari Material</button>
@@ -71,4 +71,136 @@
       </div>
     </div>
   </section>
+
+  <div class="modal fade" id="addMaterialModal" tabindex="-1" role="dialog" aria-labelledby="addMaterialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMaterialModalLabel">Tambah Material</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" id="add-material-form" action="{% url 'add_realization_material' task.id %}">
+            {% csrf_token %}
+            <div class="row mb-3">
+              <div class="form-group">
+                <label for="{{ material_form.subtask.id_for_label }}">{{ material_form.subtask.label }}</label>
+                <div class="input-group">
+                  {{ material_form.subtask }}
+                </div>
+                <div id="{{ material_form.subtask.id_for_label }}-error" class="text-danger"></div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="form-group">
+                <label for="{{ material_form.category.id_for_label }}">{{ material_form.category.label }}</label>
+                <div class="input-group">
+                  {{ material_form.category }}
+                </div>
+                <div id="{{ material_form.category.id_for_label }}-error" class="text-danger"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6 mb-3">
+                <label for="{{ material_form.name.id_for_label }}">{{ material_form.name.label }}</label>
+                <div class="input-group">
+                  {{ material_form.name }}
+                </div>
+                <div id="{{ material_form.name.id_for_label }}-error" class="text-danger"></div>
+              </div>
+              <div class="form-group col-md-6 mb-3">
+                <label for="{{ material_form.unit.id_for_label }}">{{ material_form.unit.label }}</label>
+                <div class="input-group">
+                  {{ material_form.unit }}
+                </div>
+                <div id="{{ material_form.unit.id_for_label }}-error" class="text-danger"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6 mb-3">
+                <label for="{{ material_form.material_price.id_for_label }}">{{ material_form.material_price.label }}</label>
+                <div class="input-group">
+                  {{ material_form.material_price }}
+                </div>
+                <div id="{{ material_form.material_price.id_for_label }}-error" class="text-danger"></div>
+              </div>
+              <div class="form-group col-md-6 mb-3">
+                <label for="{{ material_form.labor_price.id_for_label }}">{{ material_form.labor_price.label }}</label>
+                <div class="input-group">
+                  {{ material_form.labor_price }}
+                </div>
+                <div id="{{ material_form.labor_price.id_for_label }}-error" class="text-danger"></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6 mb-3">
+                <label for="{{ material_form.realization_client_volume.id_for_label }}">{{ material_form.realization_client_volume.label }}</label>
+                <div class="input-group">
+                  {{ material_form.realization_client_volume }}
+                </div>
+                <div id="{{ material_form.realization_client_volume.id_for_label }}-error" class="text-danger"></div>
+              </div>
+              <div class="form-group col-md-6 mb-3">
+                <label for="{{ material_form.realization_contractor_volume.id_for_label }}">{{ material_form.realization_contractor_volume.label }}</label>
+                <div class="input-group">
+                  {{ material_form.realization_contractor_volume }}
+                </div>
+                <div id="{{ material_form.realization_contractor_volume.id_for_label }}-error" class="text-danger"></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            <button type="submit" form="add-material-form" class="btn btn-primary" value="add_realization_material">Tambah Material</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('add-material-form');
+      const modalElement = document.getElementById('addMaterialModal');
+      const modal = new bootstrap.Modal(modalElement);
+  
+      form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const formData = new FormData(form);
+          fetch(form.action, {
+              method: 'POST',
+              body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.error) {
+                  const form_errors = JSON.parse(data.form_errors);
+                  Object.keys(form_errors).forEach(field => {
+                      const error = form_errors[field][0].message;
+                      if (error){
+                        const errorElement = document.getElementById(field + '-error');
+                        errorElement.textContent = error;
+                      }
+                  });
+                  modal.show();
+              } else {
+                  modal.hide();
+                  location.reload();
+              }
+          }).catch(error => {
+              console.error('Error:', error);
+          });
+      });
+
+      modalElement.addEventListener('hidden.bs.modal', function () {
+        form.reset();
+      });
+    });
+  </script>
+{% endblock scripts %}

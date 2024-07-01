@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from jardist.forms.realization_task_form import RealizationTaskForm
 from jardist.forms.task_form import TaskForm
+from jardist.forms.material_form import MaterialForm
 from jardist.models.task_models import Task
 from jardist.services.task_service import create_subtask_material_formsets
 
@@ -51,18 +52,18 @@ def EditTaskPage(request, task_id):
 def EditTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='rab')
+    material_form = MaterialForm(request.POST or None, task=task, context='rab')
 
     if request.method == 'POST':
         if all(formset.is_valid() for material, formset in formsets_data):
             for material, formset in formsets_data:
                 formset.save()
-            
             messages.success(request, 'Data berhasil disimpan')
             return redirect('edit_task', task_id=task.id)
         else:
             messages.error(request, 'Data gagal disimpan')
         
-    context = {'formsets': formsets, 'task': task}
+    context = {'formsets': formsets, 'task': task, 'material_form': material_form}
 
     return render(request, 'pages/edit_task_material_page.html', context)
 
@@ -87,18 +88,18 @@ def UpdateRealizationTaskPage(request, task_id):
 def UpdateRealizationTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='realization')
+    material_form = MaterialForm(request.POST or None, task=task, context='realization')
 
     if request.method == 'POST':
         if all(formset.is_valid() for material, formset in formsets_data):
             for material, formset in formsets_data:
                 formset.save()
-
             messages.success(request, 'Data berhasil disimpan')
             return redirect('update_realization_task', task_id=task.id)
         else:
             messages.error(request, 'Data gagal disimpan')
 
-    context = {'formsets': formsets, 'task': task}
+    context = {'formsets': formsets, 'task': task, 'material_form': material_form}
     return render(request, 'pages/update_realization_task_material_page.html', context)
 
 

@@ -119,7 +119,7 @@ class MaterialCategoryAdmin(AuditableAdmin):
     list_display = ['name'] + AuditableAdmin.list_display
 
 class MaterialAdmin(AuditableAdmin):
-    list_display = ['name', 'unit', 'price'] + AuditableAdmin.list_display
+    list_display = ['name', 'unit'] + AuditableAdmin.list_display
 
 # Task Models Admin
 class SubTaskInline(admin.TabularInline):

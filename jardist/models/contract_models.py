@@ -80,11 +80,6 @@ class PK(Auditable):
                 'maintenance_time': _('Maintenance time must be a positive number.')
             })
         
-        if self.bast_date and self.bast_date < self.end_date:
-            raise ValidationError({
-                'bast_date': _('BAST date must be later than end date.')
-            })
-
     def save(self, *args, **kwargs):
         if self.pk is not None and PK.objects.filter(pk=self.pk).exists():
             old_pk = PK.objects.get(pk=self.pk)

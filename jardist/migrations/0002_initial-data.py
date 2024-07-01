@@ -24,7 +24,6 @@ def add_material_categories(apps, schema_editor):
         MaterialCategory(name='Material Utama'),
         MaterialCategory(name='Material Non Utama'),
         MaterialCategory(name='Lain - Lain'),
-        MaterialCategory(name='Kerja Tambah'),
     ])
 
 def remove_material_categories(apps, schema_editor):

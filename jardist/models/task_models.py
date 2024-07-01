@@ -82,7 +82,6 @@ class Task(Auditable):
             headers = next(reader, None)
             required_headers = TASK_FORM_FIELDS
             if headers != required_headers:
-                print(headers, required_headers)
                 raise ValidationError("File RAB tidak sesuai dengan template.")
         
     def __str__(self):
@@ -105,11 +104,13 @@ class SubTaskMaterial(models.Model):
     subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     category = models.ForeignKey(MaterialCategory, on_delete=models.CASCADE, verbose_name='Kategori Material', default=1)
+    material_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Bahan', null=True, blank=True)
     labor_price = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Harga Upah', null=True, blank=True)
     rab_client_volume = models.IntegerField(verbose_name='Volume Client (RAB)', null=True, blank=True, default=0)
     rab_contractor_volume = models.IntegerField(verbose_name='Volume Pemborong (RAB)', null=True, blank=True, default=0)
     realization_client_volume = models.IntegerField(verbose_name='Volume Client (Realisasi)', null=True, blank=True, default=0)
     realization_contractor_volume = models.IntegerField(verbose_name='Volume Pemborong (Realisasi)', null=True, blank=True, default=0)
+    is_additional = models.BooleanField(default=False, verbose_name='Kerja Tambah')
 
     class Meta:
         verbose_name = 'Material Sub Pekerjaan'
