@@ -18,7 +18,7 @@
             <button type="submit" class="btn btn-primary">Cari Material</button>
           </form>
         </div>
-        <form method="post" class="form-page__content__form" id="rab-task-material-form" action="{% url 'edit_task_material' task.id %}">
+        <form method="post" class="form-page__content__form" id="rab-task-material-form">
           {% csrf_token %}
           {% if not formsets %}
             <div class="alert alert-info">Tidak ada material yang ditemukan</div>
@@ -64,7 +64,7 @@
           <div class="form-actions">
             <a href="{% url 'edit_task' task.id %}" class="btn btn-secondary">Kembali</a>
             {% if formsets %}
-              <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+              <button type="submit" class="btn btn-primary" value="update_rab_task_material">Simpan Perubahan</button>
             {% endif %}
           </div>
         </form>

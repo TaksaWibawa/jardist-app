@@ -6,10 +6,10 @@ class SubTaskMaterialForm(forms.ModelForm):
         model = SubTaskMaterial
         fields = ['realization_client_volume', 'realization_contractor_volume', 'rab_client_volume', 'rab_contractor_volume']
         widgets = {
-            'realization_client_volume': forms.NumberInput(attrs={'class': 'form-control', 'id': 'realization_client_volume', 'min': 0}),
-            'realization_contractor_volume': forms.NumberInput(attrs={'class': 'form-control', 'id': 'realization_contractor_volume', 'min': 0}),
-            'rab_client_volume': forms.NumberInput(attrs={'class': 'form-control', 'id': 'rab_client_volume', 'min': 0}),
-            'rab_contractor_volume': forms.NumberInput(attrs={'class': 'form-control', 'id': 'rab_contractor_volume', 'min': 0}),
+            'realization_client_volume': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'realization_contractor_volume': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'rab_client_volume': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'rab_contractor_volume': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
 
     def __init__(self, *args, **kwargs):

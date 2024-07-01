@@ -75,6 +75,10 @@ class MaterialForm(forms.ModelForm):
 
         self.instance.is_additional = True if self.context == 'realization' else False
 
+        # if self.context == 'rab':
+        #     self.instance.realization_client_volume = self.instance.rab_client_volume
+        #     self.instance.realization_contractor_volume = self.instance.rab_contractor_volume
+
         subtask_material = super().save(commit=False)
         subtask_material.material = material
 
