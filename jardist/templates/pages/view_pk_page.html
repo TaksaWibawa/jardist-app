@@ -33,7 +33,7 @@
           <a href={% url 'edit_pk' pk.id %} class="btn action__button action__button--edit">Ubah PK</a>
           <a href="#" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
         </div>
-        <a href="#" class="btn action__button action__button--back">Kembali ke Daftar PK</a>
+        <a href={% url 'list_pk' %} class="btn action__button action__button--back">Kembali ke Daftar PK</a>
       </div>
       {% for task_data in tasks_page_data %}
       <article class="task">

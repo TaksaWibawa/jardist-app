@@ -47,7 +47,7 @@ class Task(Auditable):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     task_name = models.CharField(max_length=100, verbose_name='Nama Pekerjaan')
-    pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, verbose_name='No. PK')
+    pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, verbose_name='No. PK', related_name='tasks')
     task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE, verbose_name='Jenis Pekerjaan')
     customer_name = models.CharField(max_length=100, verbose_name='Nama Pelanggan')
     location = models.CharField(max_length=100, verbose_name='Lokasi Pekerjaan')
@@ -136,3 +136,16 @@ class TemplateRAB(Auditable):
 
     def __str__(self):
         return self.task_type.name
+    
+class TaskDocumentation(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='documentations', verbose_name='Pekerjaan')
+    photo = models.FileField(upload_to='static/jardist/files/task_documentations/', verbose_name='Foto')
+    description = models.TextField(verbose_name='Deskripsi')
+    location = models.CharField(max_length=255, verbose_name='Lokasi')
+
+    class Meta:
+        verbose_name = 'Dokumentasi Pekerjaan'
+        verbose_name_plural = 'Dokumentasi Pekerjaan'
+
+    def __str__(self):
+        return f"{self.task.task_name} - {self.description}"

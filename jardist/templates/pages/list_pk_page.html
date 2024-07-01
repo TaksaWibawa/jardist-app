@@ -1,0 +1,103 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load styles %}
+{% load formatting %}
+
+{% block page_title %}List PK {% endblock page_title %}
+{% block title %}LIST PK{% endblock title %}
+
+{% block content %}
+  <section class="list-pk-page">
+    <div class="content gap-3">
+      <div class="spk-filter">
+        <form method="get">
+          <select name="spk" onchange="this.form.submit()" class="form-select">
+              <option value="">Pilih No. SPK</option>
+              {% for spk in spks %}
+                  <option value="{{ spk.spk_number }}" {% if spk.spk_number == selected_spk %}selected{% endif %}>{{ spk.spk_number }}</option>
+              {% endfor %}
+          </select>
+        </form>
+      </div>
+      <div class="table-responsive-md w-100">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" width="15%" class="align-middle text-center">No. PK</th>
+              <th scope="col" width="20%" class="align-middle text-center">Pekerjaan</th>
+              <th scope="col" width="20%" class="align-middle text-center">Nama</th>
+              <th scope="col" width="15%" class="align-middle text-center">Tanggal Akhir</th>
+              <th scope="col" width="15%" class="align-middle text-center">Status</th>
+              <th scope="col" width="15%" class="align-middle text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pk in pks %}
+              {% with pk.tasks.all as tasks %}
+                {% if tasks %}
+                  {% for task in tasks %}
+                  <tr class="{{ pk.end_date|row_color:pk.status }}">
+                      {% if forloop.first %}
+                        <td rowspan="{{ tasks|length }}" class="align-middle text-center">{{ pk.pk_number }}</td>
+                      {% endif %}
+                      <td class="align-middle text-center">{{ task.task_name|title }}</td>
+                      <td class="align-middle text-center">{{ task.customer_name|title }}</td>
+                      <td class="align-middle text-center">{{ pk.end_date }}</td>
+                      {% if forloop.first %}
+                        <td rowspan="{{ tasks|length }}" class="align-middle text-center">{{ pk.status|replace:"_, " }}</td>
+                        <td rowspan="{{ tasks|length }}" class="align-middle text-center">
+                          <form method="post" id="actionForm{{ pk.pk_number }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="pk_number" value="{{ pk.pk_number }}">
+                            <input type="hidden" name="action" id="actionInput{{ pk.pk_number }}">
+                          
+                            <div class="btn-group">
+                              <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Choose
+                              </button>
+                              <ul class="dropdown-menu" style="z-index: 1050;">
+                                <li class="dropdown-header text-left">Navigasi</li>
+                                <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
+                                <li><a class="dropdown-item" href="{% url 'update_bast' pk.id %}">BAST I</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-header text-left">Ubah Status</li>
+                                <li><button class="dropdown-item status-change" data-value="bast" data-pk="{{ pk.pk_number }}">Proses KTK</button></li>
+                                <li><button class="dropdown-item status-change" data-value="ktk_done" data-pk="{{ pk.pk_number }}">KTK Selesai</button></li>
+                                <li><button class="dropdown-item status-change" data-value="payment" data-pk="{{ pk.pk_number }}">Pembayaran</button></li>
+                                <li><button class="dropdown-item status-change" data-value="pk_done" data-pk="{{ pk.pk_number }}">Selesai</button></li>
+                              </ul>
+                            </div>
+                          </form>
+                        </td>
+                      {% endif %}
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td>{{ pk.pk_number }}</td>
+                    <td colspan="3">No tasks</td>
+                    <td>{{ pk.status }}</td>
+                  </tr>
+                {% endif %}
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.querySelectorAll('.dropdown-menu .status-change').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        var actionValue = this.getAttribute('data-value');
+        var pkNumber = this.getAttribute('data-pk');
+        document.getElementById('actionInput' + pkNumber).value = actionValue;
+        document.getElementById('actionForm' + pkNumber).submit();
+      });
+    });
+    </script>
+{% endblock scripts %}

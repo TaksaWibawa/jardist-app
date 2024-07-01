@@ -94,3 +94,37 @@ def ViewPKPage(request, pk_id):
 
     context = {'pk': pk, 'tasks_page_data': tasks_page_data, 'tasks_page': tasks_page}
     return render(request, 'pages/view_pk_page.html', context)
+
+def ListPKPage(request):
+    status_mapping = {
+        'bast': 'PROSES_KTK',
+        'ktk_done': 'PEMBAYARAN',
+        'payment': 'PEMELIHARAAN',
+        'pk_done': 'SELESAI',
+    }
+
+    if request.method == 'POST':
+        pk_number = request.POST.get('pk_number')
+        action = request.POST.get('action')
+        
+        new_status = status_mapping.get(action)
+        
+        if new_status:
+            try:
+                pk = PK.objects.get(pk_number=pk_number)
+                pk.status = new_status
+                pk.save()
+                return HttpResponseRedirect(reverse('list_pk'))
+            except PK.DoesNotExist:
+                pass
+
+    spks = SPK.objects.all().order_by('id')
+    selected_spk = request.GET.get('spk')
+
+    if selected_spk:
+        pks = PK.objects.prefetch_related('tasks').filter(spk__spk_number=selected_spk).order_by('pk_number')
+    else:
+        pks = PK.objects.prefetch_related('tasks').all().order_by('pk_number')
+
+    context = {'pks': pks, 'spks': spks, 'selected_spk': selected_spk}
+    return render(request, 'pages/list_pk_page.html', context)

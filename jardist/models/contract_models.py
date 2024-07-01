@@ -1,7 +1,7 @@
 import uuid
 from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from datetime import timedelta
 from .role_models import Department
@@ -81,19 +81,20 @@ class PK(Auditable):
             })
         
     def save(self, *args, **kwargs):
-        if self.pk is not None and PK.objects.filter(pk=self.pk).exists():
-            old_pk = PK.objects.get(pk=self.pk)
-            if self.status != old_pk.status:
-                PKStatusAudit.objects.create(
-                    pk_instance=self,
-                    old_status=old_pk.status,
-                    new_status=self.status,
-                    changed_by=self.last_updated_by
-                )
-    
-        if self.execution_time is not None:
+        # Check if the instance is being updated
+        if not self._state.adding:
+            with transaction.atomic():
+                old_pk = PK.objects.select_for_update().get(pk=self.pk)
+                if self.status != old_pk.status:
+                    PKStatusAudit.objects.create(
+                        pk_instance=self,
+                        old_status=old_pk.status,
+                        new_status=self.status,
+                        changed_by=self.last_updated_by
+                    )
+        if self.execution_time is not None and self.start_date is not None:
             self.end_date = self.start_date + timedelta(days=self.execution_time)
-    
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -111,3 +112,18 @@ class PKStatusAudit(Auditable):
 
     def __str__(self):
         return f'{self.pk_instance.pk_number} - {self.old_status} -> {self.new_status}'
+    
+class PKArchiveDocument(models.Model):
+    pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, related_name='archive_documents', verbose_name=_('Perintah Kerja'))
+    pickup_file = models.FileField(upload_to='static/jardist/files/pk_archive/pickup-docs/', verbose_name=_('File Dokumen Pengambilan Barang'))
+    pickup_description = models.TextField(verbose_name=_('Deskripsi Pengambilan Barang'))
+    proof_file = models.FileField(upload_to='static/jardist/files/pk_archive/proof-docs/', verbose_name=_('File Bukti Pengambilan Barang'))
+    proof_description = models.TextField(verbose_name=_('Deskripsi Bukti Pengambilan Barang'))
+    upload_date = models.DateTimeField(auto_now_add=True, verbose_name=_('Tanggal Upload'))
+
+    class Meta:
+        verbose_name = _('Dokumen Arsip PK')
+        verbose_name_plural = _('Dokumen Arsip PK')
+
+    def __str__(self):
+        return f"{self.pk.pk_number} - {self.pickup_file.name}"

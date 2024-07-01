@@ -13,3 +13,8 @@ def currency(value):
 @register.filter
 def add_days(value, arg):
     return value + timedelta(days=arg)
+
+@register.filter
+def replace(value, args):
+    original, new = args.split(',')
+    return value.replace(original, new)

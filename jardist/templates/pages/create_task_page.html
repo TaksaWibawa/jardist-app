@@ -51,6 +51,18 @@
                 }
             });
         });
+
+        const isWithTemplateCheckbox = document.getElementById('{{ form.is_with_template.id_for_label }}');
+        const rabInput = document.getElementById('{{ form.rab.id_for_label }}');
+    
+        function toggleRabDisabled() {
+          rabInput.disabled = isWithTemplateCheckbox.checked;
+          rabInput.style.cursor = isWithTemplateCheckbox.checked ? 'not-allowed' : 'auto';
+        }
+    
+        isWithTemplateCheckbox.addEventListener('change', toggleRabDisabled);
+    
+        toggleRabDisabled();
     });
   </script>
 {% endblock scripts %}
