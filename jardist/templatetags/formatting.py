@@ -1,20 +1,16 @@
 from django import template
 from datetime import timedelta
-import locale
 
 register = template.Library()
 
 @register.filter
 def currency(value):
-    try:
-        locale.setlocale(locale.LC_ALL, 'id_ID.UTF-8')
-    except locale.Error:
-        try:
-            locale.setlocale(locale.LC_ALL, 'id_ID.utf8')
-        except locale.Error:
-            pass
-    formatted_value = locale.currency(value, grouping=True, symbol='')
-    return "Rp. " + formatted_value
+    value_str = "{:.2f}".format(value)
+    whole, fraction = value_str.split('.')
+    whole_with_separator = ".".join([whole[max(i-3, 0):i] for i in range(len(whole), 0, -3)][::-1])
+    
+    formatted_value = whole_with_separator + ',' + fraction
+    return "Rp " + formatted_value
 
 @register.filter
 def add_days(value, arg):
