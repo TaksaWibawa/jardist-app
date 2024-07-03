@@ -18,10 +18,19 @@
     <link rel="stylesheet"
           type="text/css"
           href="{% static 'jardist/css/styles.css' %}" />
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}"
+          rel="stylesheet"
+          type="text/css" />
+    <link href="{% static 'fontawesomefree/css/solid.css' %}"
+          rel="stylesheet"
+          type="text/css" />
   </head>
   <body>
     <div class="container-fluid wrapper">
       <header class="header mb-3">
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#drawer" aria-controls="drawer">
+          <i class="fas fa-bars"></i>
+        </button>
         <h1>{% block title %}Base Title{% endblock %}</h1>
       </header>
       <main class="content-wrapper">
@@ -47,10 +56,23 @@
         {% endfor %}
       </div>
     </div>
-    {% block scripts %}
-      <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
-      <script src="{% static 'jardist/js/select2.min.js' %}"></script>
-      <script src="{% static 'jardist/js/scripts.js' %}"></script>
-    {% endblock scripts %}
+<aside class="offcanvas offcanvas-start" tabindex="-1" id="drawer" aria-labelledby="drawerLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="drawerLabel">JARDIST MENU</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <nav class="offcanvas-body">
+    <div class="d-grid gap-2">
+      {% for item in NAV_ITEMS %}
+        <button class="btn btn-primary" type="button" data-bs-dismiss="offcanvas" onclick="location.href='{% url item.url %}'">{{ item.name }}</button>
+      {% endfor %}
+    </div>
+  </nav>
+</aside>
   </body>
+  {% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+    <script src="{% static 'jardist/js/select2.min.js' %}"></script>
+    <script src="{% static 'jardist/js/scripts.js' %}"></script>
+  {% endblock scripts %}
 </html>
