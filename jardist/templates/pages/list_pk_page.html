@@ -12,10 +12,10 @@
       <div class="spk-filter">
         <form method="get">
           <select name="spk" onchange="this.form.submit()" class="form-select">
-              <option value="">Pilih No. SPK</option>
-              {% for spk in spks %}
-                  <option value="{{ spk.spk_number }}" {% if spk.spk_number == selected_spk %}selected{% endif %}>{{ spk.spk_number }}</option>
-              {% endfor %}
+            <option value="">Pilih No. SPK</option>
+            {% for spk in spks %}
+                <option value="{{ spk.spk_number }}" {% if spk.spk_number == selected_spk %}selected{% endif %}>{{ spk.spk_number }}</option>
+            {% endfor %}
           </select>
         </form>
       </div>
@@ -99,5 +99,5 @@
         document.getElementById('actionForm' + pkNumber).submit();
       });
     });
-    </script>
+  </script>
 {% endblock scripts %}

@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'jazzmin',
     'bootstrap5',
     'fontawesomefree',
-    'django_xhtml2pdf',
     'admin_reorder',
 
     # Default

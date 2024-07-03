@@ -2,7 +2,7 @@ from django import forms
 from jardist.models.contract_models import SPK, PK
 
 class PKForm(forms.ModelForm):
-    spk = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'spk'}), label='No. SPK')
+    spk = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-select', 'id': 'spk'}), label='No. SPK')
 
     class Meta:
         model = PK

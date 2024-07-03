@@ -9,8 +9,8 @@ from jardist.utils import clean_decimal_field
 import pandas as pd
 
 class TaskForm(forms.ModelForm):
-    pk_instance = forms.ModelChoiceField(queryset=PK.objects.all(), empty_label='Pilih No. PK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'pk_instance'}), label='No. PK')
-    task_type = forms.ModelChoiceField(queryset=TaskType.objects.all(), empty_label='Pilih Jenis Pekerjaan', widget=forms.Select(attrs={'class': 'form-control', 'id': 'task_type'}), label='Jenis Pekerjaan')
+    pk_instance = forms.ModelChoiceField(queryset=PK.objects.all(), empty_label='Pilih No. PK', widget=forms.Select(attrs={'class': 'form-select', 'id': 'pk_instance'}), label='No. PK')
+    task_type = forms.ModelChoiceField(queryset=TaskType.objects.all(), empty_label='Pilih Jenis Pekerjaan', widget=forms.Select(attrs={'class': 'form-select', 'id': 'task_type'}), label='Jenis Pekerjaan')
     is_with_template = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'is_with_template', 'placeholder': 'Centang jika pakai template RAB'}), label='Centang jika pakai template RAB')
 
     class Meta:
@@ -86,80 +86,85 @@ class TaskForm(forms.ModelForm):
         is_with_template = self.cleaned_data.get('is_with_template')
         task_type = self.cleaned_data.get('task_type')
 
-        # if on create task is_with_template is checked, use template rab file. Otherwise, use uploaded rab file
-        if is_with_template and self.is_create_page:
-            template_file = TemplateRAB.objects.filter(task_type=task_type).first()
-            if template_file:
-                instance.rab = template_file.rab
-                df = pd.read_csv(instance.rab)
-                reader = df.itertuples(index=False)
+        try:
+            # if on create task is_with_template is checked, use template rab file. Otherwise, use uploaded rab file
+            if is_with_template and self.is_create_page:
+                template_file = TemplateRAB.objects.filter(task_type=task_type).first()
+                if template_file:
+                    instance.rab = template_file.rab
+                    df = pd.read_csv(instance.rab)
+                    reader = df.itertuples(index=False)
+                else:
+                    self.add_error('task_type', 'Template RAB tidak ditemukan')
+                    return None
             else:
-                self.add_error('task_type', 'Template RAB tidak ditemukan')
-                return None
-        else:
-            rab = self.cleaned_data.get('rab')
-            if rab:
-                rab.seek(0)
-                df = pd.read_csv(rab)
-                reader = df.itertuples(index=False)
+                rab = self.cleaned_data.get('rab')
+                if rab:
+                    rab.seek(0)
+                    df = pd.read_csv(rab)
+                    reader = df.itertuples(index=False)
+                else:
+                    self.add_error('rab', 'File RAB tidak ditemukan')
+                    return None
+
+            # if rab file is changed and not on create page, delete all sub tasks
+            if not self.is_create_page and 'rab' in self.changed_data:
+                SubTask.objects.filter(task=instance).delete()
             else:
-                self.add_error('rab', 'File RAB tidak ditemukan')
-                return None
+                instance.save()
 
-        # if rab file is changed and not on create page, delete all sub tasks
-        if not self.is_create_page and 'rab' in self.changed_data:
-            SubTask.objects.filter(task=instance).delete()
-        else:
-            instance.save()
+            # if rab file is changed or on create page, create sub tasks and sub task materials
+            if 'rab' in self.changed_data or self.is_create_page:
+                sub_tasks_to_create = []
+                sub_task_materials_to_create = []
 
-        # if rab file is changed or on create page, create sub tasks and sub task materials
-        if 'rab' in self.changed_data or self.is_create_page:
-            sub_tasks_to_create = []
-            sub_task_materials_to_create = []
+                # preserve task types, sub task types, and materials in memory
+                task_types = list(TaskType.objects.all())
+                sub_task_types = list(SubTaskType.objects.all())
+                materials = list(Material.objects.all())
 
-            # preserve task types, sub task types, and materials in memory
-            task_types = list(TaskType.objects.all())
-            sub_task_types = list(SubTaskType.objects.all())
-            materials = list(Material.objects.all())
+                # iterate over the rows in the csv file
+                for row in reader:
+                    jenis_pekerjaan, sub_jenis_pekerjaan, kategori_material, nama_material, satuan, bahan, upah, vol_pln, vol_pemb = row
 
-            # iterate over the rows in the csv file
-            for row in reader:
-                jenis_pekerjaan, sub_jenis_pekerjaan, kategori_material, nama_material, satuan, bahan, upah, vol_pln, vol_pemb = row
+                    bahan, upah, vol_pln, vol_pemb = map(clean_decimal_field, [bahan, upah, vol_pln, vol_pemb])
 
-                bahan, upah, vol_pln, vol_pemb = map(clean_decimal_field, [bahan, upah, vol_pln, vol_pemb])
+                    # check first for task type
+                    task_type = next((tt for tt in task_types if tt.name.lower() == jenis_pekerjaan.lower()), None)
 
-                # check first for task type
-                task_type = next((tt for tt in task_types if tt.name.lower() == jenis_pekerjaan.lower()), None)
+                    # if task type is found, create sub task and sub task materials
+                    if task_type and task_type == instance.task_type:
+                        # check if sub task type already exists, if not create new
+                        sub_task_type = next((stt for stt in sub_task_types if stt.name.lower() == sub_jenis_pekerjaan.lower()), None)
+                        if not sub_task_type:
+                            sub_task_type = SubTaskType.objects.create(name=sub_jenis_pekerjaan)
+                            sub_task_type.task_types.add(task_type)
+                            sub_task_types.append(sub_task_type)
 
-                # if task type is found, create sub task and sub task materials
-                if task_type and task_type == instance.task_type:
-                    # check if sub task type already exists, if not create new
-                    sub_task_type = next((stt for stt in sub_task_types if stt.name.lower() == sub_jenis_pekerjaan.lower()), None)
-                    if not sub_task_type:
-                        sub_task_type = SubTaskType.objects.create(name=sub_jenis_pekerjaan)
-                        sub_task_type.task_types.add(task_type)
-                        sub_task_types.append(sub_task_type)
+                        # check if material already exists, if not create new
+                        material = next((m for m in materials if m.name.lower() == nama_material.lower()), None)
+                        if not material:
+                            material = Material.objects.create(name=nama_material, unit=satuan)
+                            materials.append(material)
 
-                    # check if material already exists, if not create new
-                    material = next((m for m in materials if m.name.lower() == nama_material.lower()), None)
-                    if not material:
-                        material = Material.objects.create(name=nama_material, unit=satuan)
-                        materials.append(material)
+                        # create sub task and sub task materials
+                        sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
+                        sub_task_materials_to_create.append(SubTaskMaterial(
+                            subtask=sub_task, 
+                            material=material, 
+                            material_price=bahan,
+                            labor_price=upah, 
+                            rab_client_volume=vol_pln, 
+                            rab_contractor_volume=vol_pemb, 
+                            category=MaterialCategory.objects.get(name__iexact=kategori_material)))
 
-                    # create sub task and sub task materials
-                    sub_task, created = SubTask.objects.get_or_create(task=instance, sub_task_type=sub_task_type)
-                    sub_task_materials_to_create.append(SubTaskMaterial(
-                        subtask=sub_task, 
-                        material=material, 
-                        material_price=bahan,
-                        labor_price=upah, 
-                        rab_client_volume=vol_pln, 
-                        rab_contractor_volume=vol_pemb, 
-                        category=MaterialCategory.objects.get(name__iexact=kategori_material)))
-
-            # do bulk create for sub tasks and sub task materials
-            SubTask.objects.bulk_create(sub_tasks_to_create)
-            SubTaskMaterial.objects.bulk_create(sub_task_materials_to_create)
+                # do bulk create for sub tasks and sub task materials
+                SubTask.objects.bulk_create(sub_tasks_to_create)
+                SubTaskMaterial.objects.bulk_create(sub_task_materials_to_create)
+            
+        except Exception as e:
+            self.add_error(None, f'Error processing CSV: {str(e)}')
+            return None
 
         instance.save()
         return instance

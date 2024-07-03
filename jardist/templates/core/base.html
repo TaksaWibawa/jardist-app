@@ -9,15 +9,15 @@
     {% load bootstrap5 %}
     {% bootstrap_css %} {% bootstrap_javascript %}
     {% load static %}
+    <link href="{% static 'jardist/css/select2.min.css' %}"
+          rel="stylesheet"
+          type="text/css" />
+    <link href="{% static 'jardist/css/select2-bootstrap-5-theme.min.css' %}"
+          rel="stylesheet"
+          type="text/css" />
     <link rel="stylesheet"
           type="text/css"
           href="{% static 'jardist/css/styles.css' %}" />
-    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}"
-          rel="stylesheet"
-          type="text/css" />
-    <link href="{% static 'fontawesomefree/css/solid.css' %}"
-          rel="stylesheet"
-          type="text/css" />
   </head>
   <body>
     <div class="container-fluid wrapper">
@@ -48,6 +48,8 @@
       </div>
     </div>
     {% block scripts %}
+      <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+      <script src="{% static 'jardist/js/select2.min.js' %}"></script>
       <script src="{% static 'jardist/js/scripts.js' %}"></script>
     {% endblock scripts %}
   </body>

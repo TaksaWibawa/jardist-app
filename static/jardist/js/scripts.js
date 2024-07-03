@@ -11,3 +11,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     submenuList.style.display = 'block';
   });
 });
+
+$(document).ready(function () {
+  $('.form-select').select2({
+    theme: 'bootstrap-5',
+  });
+});

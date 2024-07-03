@@ -1,7 +1,6 @@
 from django import forms
 from jardist.models.material_models import Material
 from jardist.models.task_models import SubTaskMaterial, SubTask
-from jardist.models.material_models import MaterialCategory
 from django.db import transaction
 
 class MaterialForm(forms.ModelForm):
@@ -12,8 +11,8 @@ class MaterialForm(forms.ModelForm):
         model = SubTaskMaterial
         fields = ['subtask', 'category', 'material_price', 'labor_price', 'rab_client_volume', 'rab_contractor_volume', 'realization_client_volume', 'realization_contractor_volume']
         widgets = {
-            'subtask': forms.Select(attrs={'class': 'form-control', 'id': 'subtask'}),
-            'category': forms.Select(attrs={'class': 'form-control', 'id': 'category'}),
+            'subtask': forms.Select(attrs={'class': 'form-select', 'id': 'subtask'}),
+            'category': forms.Select(attrs={'class': 'form-select', 'id': 'category'}),
             'material_price': forms.NumberInput(attrs={'class': 'form-control', 'id': 'material_price', 'min': 0}),
             'labor_price': forms.NumberInput(attrs={'class': 'form-control', 'id': 'labor_price', 'min': 0}),
             'rab_client_volume': forms.NumberInput(attrs={'class': 'form-control', 'id': 'rab_client_volume', 'min': 0}),
@@ -74,10 +73,6 @@ class MaterialForm(forms.ModelForm):
         )
 
         self.instance.is_additional = True if self.context == 'realization' else False
-
-        # if self.context == 'rab':
-        #     self.instance.realization_client_volume = self.instance.rab_client_volume
-        #     self.instance.realization_contractor_volume = self.instance.rab_contractor_volume
 
         subtask_material = super().save(commit=False)
         subtask_material.material = material

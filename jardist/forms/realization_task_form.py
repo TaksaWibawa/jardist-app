@@ -9,18 +9,18 @@ TASK_STATUS_CHOICES = [
 ]
 
 class RealizationTaskForm(forms.ModelForm):
-    spk_instance = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-control', 'id': 'spk_instance'}), label='No. SPK')
+    spk_instance = forms.ModelChoiceField(queryset=SPK.objects.all(), empty_label='Pilih No. SPK', widget=forms.Select(attrs={'class': 'form-select', 'id': 'spk_instance'}), label='No. SPK')
     end_date_pk = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'id': 'end_date_pk', 'type': 'date'}), label='Tanggal Berakhir PK')
 
     class Meta:
         model = Task
         fields = ['pk_instance', 'location', 'customer_name', 'task_type', 'status']
         widgets = {
-            'pk_instance': forms.Select(attrs={'class': 'form-control', 'id': 'pk_instance', 'type': 'date'}),
+            'pk_instance': forms.Select(attrs={'class': 'form-select', 'id': 'pk_instance', 'type': 'date'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'id': 'location'}),
             'customer_name': forms.TextInput(attrs={'class': 'form-control', 'id': 'customer_name'}),
-            'task_type': forms.Select(attrs={'class': 'form-control', 'id': 'task_type'}),
-            'status': forms.Select(choices=TASK_STATUS_CHOICES, attrs={'class': 'form-control', 'id': 'status'}),
+            'task_type': forms.Select(attrs={'class': 'form-select', 'id': 'task_type'}),
+            'status': forms.Select(choices=TASK_STATUS_CHOICES, attrs={'class': 'form-select', 'id': 'status'}),
         }
 
     def __init__(self, *args, **kwargs):
