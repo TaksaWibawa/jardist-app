@@ -1,0 +1,125 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block page_title %}Buat Arsip Dokumen{% endblock page_title %}
+{% block title %}BUAT ARSIP DOKUMEN{% endblock title %}
+
+{% block content %}
+  <section class="form-page">
+    <div class="form-page__content">
+      <form method="post" class="form-page__content__form" id="archive-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row mb-3">
+          <label for="{{ form.pk_instance.id_for_label }}">{{ form.pk_instance.label }}</label>
+          <div class="input-group">
+            {{ form.pk_instance }}
+          </div>
+          {% for error in form.pk_instance.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div id="formset" class="formset">
+          {{ formset.management_form }}
+          {% for form in formset %}
+            <div class="formset-row">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="{{ form.pickup_file.id_for_label }}">{{ form.pickup_file.label }}</label>
+                  <div class="input-group">
+                    {{ form.pickup_file }}
+                  </div>
+                  {% for error in form.pickup_file.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="{{ form.pickup_description.id_for_label }}">{{ form.pickup_description.label }}</label>
+                  <div class="input-group">
+                    {{ form.pickup_description }}
+                  </div>
+                  {% for error in form.pickup_description.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="{{ form.proof_file.id_for_label }}">{{ form.proof_file.label }}</label>
+                  <div class="input-group">
+                    {{ form.proof_file }}
+                  </div>
+                  {% for error in form.proof_file.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="{{ form.proof_description.id_for_label }}">{{ form.proof_description.label }}</label>
+                  <div class="input-group">
+                    {{ form.proof_description }}
+                  </div>
+                  {% for error in form.proof_description.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <button type="button" class="btn btn-danger delete-formset float-end d-none">Hapus</button>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="form-actions flex-row">
+          <button type="button" id="add-formset" class="btn btn-secondary">Tambah Arsip</button>
+          <button type="submit" value="save_archive" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const container = document.querySelector('#formset');
+      const addButton = document.getElementById('add-formset');
+      const totalForms = document.getElementById('id_document-TOTAL_FORMS');
+
+      function manageDeleteButtons() {
+        const deleteButtons = document.querySelectorAll('.delete-formset');
+        deleteButtons.forEach((button, index) => {
+          button.classList.toggle('d-none', index === 0);
+        });
+      }
+
+      manageDeleteButtons();
+
+      addButton.addEventListener('click', function () {
+        let newForm = container.querySelector('.formset-row:last-of-type').cloneNode(true);
+        let formNum = parseInt(totalForms.value);
+        let formRegex = RegExp(`document-(\\d+)-`, 'g');
+
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `document-${formNum}-`);
+        container.appendChild(newForm);
+        addDeleteButtonListeners();
+        manageDeleteButtons();
+        updateTotalForms();
+      });
+
+      function addDeleteButtonListeners() {
+        document.querySelectorAll('.delete-formset').forEach((button) => {
+          button.addEventListener('click', function () {
+            this.parentNode.remove();
+            updateTotalForms();
+            manageDeleteButtons();
+          });
+        });
+      }
+
+      function updateTotalForms() {
+        const formsetRows = container.querySelectorAll('.formset-row').length;
+        totalForms.value = formsetRows.toString();
+      }
+
+      addDeleteButtonListeners();
+      updateTotalForms();
+    });
+  </script>
+{% endblock scripts %}

@@ -113,17 +113,27 @@ class PKStatusAudit(Auditable):
     def __str__(self):
         return f'{self.pk_instance.pk_number} - {self.old_status} -> {self.new_status}'
     
-class PKArchiveDocument(models.Model):
+class PKArchiveDocument(Auditable):
     pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, related_name='archive_documents', verbose_name=_('Perintah Kerja'))
-    pickup_file = models.FileField(upload_to='static/jardist/files/pk_archive/pickup-docs/', verbose_name=_('File Dokumen Pengambilan Barang'))
-    pickup_description = models.TextField(verbose_name=_('Deskripsi Pengambilan Barang'))
-    proof_file = models.FileField(upload_to='static/jardist/files/pk_archive/proof-docs/', verbose_name=_('File Bukti Pengambilan Barang'))
-    proof_description = models.TextField(verbose_name=_('Deskripsi Bukti Pengambilan Barang'))
-    upload_date = models.DateTimeField(auto_now_add=True, verbose_name=_('Tanggal Upload'))
 
     class Meta:
         verbose_name = _('Dokumen Arsip PK')
         verbose_name_plural = _('Dokumen Arsip PK')
 
     def __str__(self):
-        return f"{self.pk.pk_number} - {self.pickup_file.name}"
+        return f"{self.pk_instance.pk_number}"
+
+class Document(Auditable):
+    pk_archive = models.ForeignKey(PKArchiveDocument, on_delete=models.CASCADE, related_name='documents', verbose_name=_('Dokumen Arsip PK'))
+    pickup_file = models.FileField(upload_to='static/jardist/files/pk_archive/pickup/', verbose_name=_('File Dokumen Pengambilan Barang'))
+    pickup_description = models.CharField(max_length=255, verbose_name=_('Deskripsi Dokumen Pengambilan Barang'))
+    proof_file = models.FileField(upload_to='static/jardist/files/pk_archive/proof/', verbose_name=_('File Bukti Pengambilan Barang'), null=True, blank=True)
+    proof_description = models.CharField(max_length=255, verbose_name=_('Deskripsi Bukti Pengambilan Barang'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('Dokumen')
+        verbose_name_plural = _('Dokumen')
+
+    def __str__(self):
+        file_name = self.pickup_file.name if self.pickup_file else self.proof_file.name if self.proof_file else 'No File'
+        return f"{self.pk_archive.pk_instance.pk_number} - {file_name}"

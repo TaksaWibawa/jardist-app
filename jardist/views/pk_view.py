@@ -4,7 +4,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
 from jardist.forms.pk_form import PKForm
 from jardist.forms.bast_form import BASTForm
-from jardist.models.contract_models import SPK, PK
+from jardist.forms.archive_form import DocumentFormSet, PKSelectForm
+from jardist.models.contract_models import SPK, PK, PKArchiveDocument
 from jardist.models.task_models import Task
 from jardist.services.task_service import get_sub_tasks_materials_by_category
 
@@ -97,7 +98,6 @@ def ViewPKPage(request, pk_id):
 
 def ListPKPage(request):
     status_mapping = {
-        'bast': 'PROSES_KTK',
         'ktk_done': 'PEMBAYARAN',
         'payment': 'PEMELIHARAAN',
         'pk_done': 'SELESAI',
@@ -128,3 +128,28 @@ def ListPKPage(request):
 
     context = {'pks': pks, 'spks': spks, 'selected_spk': selected_spk}
     return render(request, 'pages/list_pk_page.html', context)
+
+def CreateArchiveDocumentPage(request):
+    form = PKSelectForm(request.POST or None)
+    formset = DocumentFormSet(request.POST or None, request.FILES or None, prefix='document')
+    first_formset_empty = False
+
+
+    if request.method == 'POST' and form.is_valid():
+        pk_archive_instance = PKArchiveDocument(pk_instance=form.cleaned_data['pk_instance'])
+        first_form = formset.forms[0]
+        if formset.is_valid():
+            if not first_form.cleaned_data.get('pickup_file'):
+                messages.error(request, 'Isi Field Pertama!')
+                first_formset_empty = True
+            else:
+                pk_archive_instance.save()
+                formset.instance = pk_archive_instance
+                formset.save()
+                messages.success(request, 'Data berhasil disimpan')
+                return redirect('list_pk')
+        else:
+            messages.error(request, 'Data gagal disimpan')
+
+    context = {'form': form, 'formset': formset, 'first_formset_empty': first_formset_empty}
+    return render(request, 'pages/create_archive_page.html', context)

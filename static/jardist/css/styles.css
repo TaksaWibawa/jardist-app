@@ -122,14 +122,14 @@ h1, h2, h3, h4, h5, h6 {
   color: #333;
 }
 
-.create-spk-page, .create-pk-page, .create-task-page, .view-pk-page, .list-pk-page {
+.create-spk-page, .create-pk-page, .create-task-page, .view-pk-page, .list-pk-page, .form-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-block: 2rem;
+  padding-block: 0.5rem;
 }
 
-.form-page {
+.form-page__content {
   width: 100%;
 }
 
@@ -137,6 +137,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
 }
 
 .view-pk-page .content, .list-pk-page .content {
@@ -455,11 +460,6 @@ h1, h2, h3, h4, h5, h6 {
   gap: 1rem;
 }
 
-.form-actions button {
-  background-color: #007BFF;
-  color: #fff;
-}
-
 .search-bar {
   display: flex;
   justify-content: flex-end;
@@ -501,9 +501,52 @@ h1, h2, h3, h4, h5, h6 {
   gap: 1rem;
 }
 
-.spk-filter select {
-  padding: 0.5rem;
-  min-width: 200px;
+.formset {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formset-row {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: #f7f7f7;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.formset-row:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.formset-row button {
+  width: max-content;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  font-size: 0.875em;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-ktk_done {
+  background-color: #007BFF;
+}
+
+.status-payment {
+  background-color: #cc9a04;
+}
+
+.status-pk_done {
+  background-color: #28a745;
+}
+
+.status-default {
+  background-color: #6c757d;
 }
 
 @media screen and (max-width: 768px) {

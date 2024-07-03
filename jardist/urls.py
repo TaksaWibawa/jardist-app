@@ -23,4 +23,6 @@ urlpatterns = [
   path('task/<uuid:task_id>/update-realization/material', task_view.UpdateRealizationTaskMaterialPage, name='update_realization_material'),
   path('task/<uuid:task_id>/add-material/rab', task_service.AddRABMaterial, name='add_rab_material'),
   path('task/<uuid:task_id>/add-material/realization', task_service.AddRealizationMaterial, name='add_realization_material'),
+
+  path('archive/create', pk_view.CreateArchiveDocumentPage, name='create_archive_document'),
 ]

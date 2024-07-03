@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin, GroupAdmin as DefaultGroupAdmin
 from django.contrib.auth.models import Group, User
+from django.db.models import Count
 from jardist.forms.admin_form import UserAdminForm
 
-from jardist.models.contract_models import SPK, PK, PKStatusAudit
+from jardist.models.contract_models import SPK, PK, PKStatusAudit, PKArchiveDocument, Document
 from jardist.models.role_models import Department, Role
 from jardist.models.task_models import Task, TaskType, SubTask, SubTaskType, SubTaskMaterial, TemplateRAB
 from jardist.models.user_models import UserProfile
@@ -75,7 +76,6 @@ class UserAdmin(DefaultUserAdmin):
         if not change:
             password = form.cleaned_data.get('password1')
             obj.set_password(password)
-            print(obj)
         super().save_model(request, obj, form, change)
         role = form.cleaned_data.get('role')
         department = form.cleaned_data.get('department')
@@ -96,6 +96,7 @@ class RoleAdmin(AuditableAdmin):
 class PKInline(admin.TabularInline):
     model = PK
     extra = 1
+
 class SPKAdmin(AuditableAdmin):
     list_display = ['spk_number', 'start_date', 'end_date', 'execution_time', 'maintenance_time', 'department', 'is_without_pk'] + AuditableAdmin.list_display
     inlines = [PKInline]
@@ -113,6 +114,26 @@ class PKStatusAuditAdmin(AuditableAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+class DocumentInline(admin.TabularInline):
+    model = Document
+    extra = 1
+
+class PkArchiveDocumentAdmin(admin.ModelAdmin):
+    list_display = ['pk_instance', 'documents_count'] + AuditableAdmin.list_display
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).annotate(
+            documents_count=Count('documents')
+        )
+        return queryset
+
+    def documents_count(self, obj):
+        return obj.documents_count
+    documents_count.admin_order_field = 'documents_count'
+    documents_count.short_description = 'Jumlah Arsip Dokumen'
+
+    inlines = [DocumentInline]
     
 # Material Models Admin
 class MaterialCategoryAdmin(AuditableAdmin):
@@ -160,6 +181,7 @@ admin.site.register(Role, RoleAdmin)
 # Contract Models
 admin.site.register(SPK, SPKAdmin)
 admin.site.register(PKStatusAudit, PKStatusAuditAdmin)
+admin.site.register(PKArchiveDocument, PkArchiveDocumentAdmin)
 
 # Material Models
 admin.site.register(MaterialCategory, MaterialCategoryAdmin)

@@ -15,5 +15,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 $(document).ready(function () {
   $('.form-select').select2({
     theme: 'bootstrap-5',
+    width: '100%',
   });
 });
