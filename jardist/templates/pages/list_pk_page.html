@@ -9,8 +9,8 @@
 {% block content %}
   <section class="list-pk-page">
     <div class="content gap-3">
-      <div class="spk-filter">
-        <form method="get">
+      <div class="filter row">
+        <form method="get" class="col-md-6 px-0">
           <select name="spk" onchange="this.form.submit()" class="form-select form-select-lg">
             <option value="">Pilih No. SPK</option>
             {% for spk in spks %}

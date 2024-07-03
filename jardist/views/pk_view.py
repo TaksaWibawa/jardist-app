@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
-from jardist.forms.pk_form import PKForm
-from jardist.forms.bast_form import BASTForm
 from jardist.forms.archive_form import DocumentFormSet, PKSelectForm
+from jardist.forms.bast_form import BASTForm
+from jardist.forms.pk_form import PKForm
 from jardist.models.contract_models import SPK, PK, PKArchiveDocument
 from jardist.models.task_models import Task
 from jardist.services.task_service import get_sub_tasks_materials_by_category
@@ -130,7 +131,9 @@ def ListPKPage(request):
     return render(request, 'pages/list_pk_page.html', context)
 
 def CreateArchiveDocumentPage(request):
-    form = PKSelectForm(request.POST or None)
+    pk_number = request.GET.get('pk')
+    pk_instance = PK.objects.get(pk_number=pk_number) if pk_number else None
+    form = PKSelectForm(request.POST or None, initial={'pk_instance': pk_instance})
     formset = DocumentFormSet(request.POST or None, request.FILES or None, prefix='document')
     first_formset_empty = False
 
@@ -147,9 +150,33 @@ def CreateArchiveDocumentPage(request):
                 formset.instance = pk_archive_instance
                 formset.save()
                 messages.success(request, 'Data berhasil disimpan')
-                return redirect('list_pk')
+                return HttpResponseRedirect(reverse('view_archive_document') + '?pk=' + str(pk_archive_instance.pk_instance.pk_number))
         else:
             messages.error(request, 'Data gagal disimpan')
 
     context = {'form': form, 'formset': formset, 'first_formset_empty': first_formset_empty}
     return render(request, 'pages/create_archive_page.html', context)
+
+def ViewArchiveDocumentPage(request):
+    pks = PK.objects.all().order_by('pk_number')
+    pk_number = request.GET.get('pk')
+    documents_with_dates = [] 
+    pk = None
+
+    if pk_number:
+        try:
+            pk = PK.objects.get(pk_number=pk_number)
+            pk_archive_instances = PKArchiveDocument.objects.filter(pk_instance=pk).annotate(doc_count=Count('documents')).order_by('-id')
+            for pk_archive_instance in pk_archive_instances:
+                for document in pk_archive_instance.documents.all():
+                    documents_with_dates.append((document, pk_archive_instance.created_at))
+        except PK.DoesNotExist:
+            messages.error(request, 'Data tidak ditemukan')
+    else:
+        pk_archive_instances = PKArchiveDocument.objects.annotate(doc_count=Count('documents')).order_by('-doc_count')
+        for pk_archive_instance in pk_archive_instances:
+            for document in pk_archive_instance.documents.all():
+                documents_with_dates.append((document, pk_archive_instance.created_at))
+
+    context = {'pks': pks, 'documents_with_dates': documents_with_dates, 'pk': pk, 'selected_pk_number': pk_number}
+    return render(request, 'pages/view_archive_page.html', context)

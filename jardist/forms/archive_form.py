@@ -9,6 +9,10 @@ class PKSelectForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['pk_instance'].empty_label = 'Pilih No. PK'
 
+        initial = kwargs.get('initial')
+        if initial and initial.get('pk_instance') is not None:
+            self.fields['pk_instance'].initial = initial.get('pk_instance')
+
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
@@ -16,8 +20,8 @@ class DocumentForm(forms.ModelForm):
         widgets = {
             'pickup_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.jpg, .jpeg, .png, .pdf', 'required': True}),
             'pickup_description': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Reservasi atau Kode 7'}),
-            'proof_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.jpg, .jpeg, .png, .pdf'}),
-            'proof_description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Faktur Pengambilan'}),
+            'proof_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.jpg, .jpeg, .png, .pdf', 'required': True}),
+            'proof_description': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Faktur Pengambilan'}),
         }
         labels = {
             'pickup_file': 'Dokumen Pengambilan Barang',

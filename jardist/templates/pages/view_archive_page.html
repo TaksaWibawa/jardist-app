@@ -1,0 +1,201 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load os %}
+
+{% block page_title %}Lihat Arsip Dokumen{% endblock page_title %}
+{% block title %}LIHAT ARSIP DOKUMEN{% endblock title %}
+
+{% block content %}
+<section class="view-archive-page">
+  <div class="content gap-3">
+    <div class="filter row mb-5">
+      <form method="get" class="col-md-6 px-0">
+        <select name="pk" onchange="this.form.submit()" class="form-select form-select-lg">
+          <option value="">Pilih No. PK</option>
+          {% for pk in pks %}
+              <option value="{{ pk.pk_number }}" {% if pk.pk_number == selected_pk_number %}selected{% endif %}>{{ pk.pk_number }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+
+    <div class="documents">
+      {% for document, upload_date in documents_with_dates %}
+        {% if document.pickup_file %}
+          <div class="document-row">
+            <div class="document-img">
+                {% if document.pickup_file.url|lower|endswith:".pdf" %}
+                  <img src="{% static 'jardist/placeholders/png-image.png' %}" alt="Pickup Document PDF" class="pdf">
+                {% else %}
+                  <img src="{{ document.pickup_file.url }}" alt="Pickup Document Image">
+                {% endif %}
+              {% endif %}
+            </div>
+            {% if document.pickup_file %}
+            <div class="document-description">
+              <h3>{{ document.pickup_description }}</h3>
+              <p>Tanggal: {{ upload_date|date:"d F Y" }}</p>
+              <div class="d-flex gap-2 mx-md-0 mx-auto">
+                {% if document.pickup_file.url|lower|endswith:".pdf" %}
+                  <button class="btn btn-primary" onclick="window.open('{{ document.pickup_file.url }}', '_blank')">Lihat File</button>
+                {% else %}
+                  <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#universalModal" data-image-url="{{ document.pickup_file.url }}">Lihat File</a>
+                {% endif %}
+                <a href="{{ document.pickup_file.url }}" download class="btn btn-dark">Download</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% if document.proof_file %}
+          <div class="document-row">
+           <div class="document-img">
+             {% if document.proof_file %}
+               {% if document.proof_file.url|lower|endswith:".pdf" %}
+                 <img src="{% static 'jardist/placeholders/png-image.png' %}" alt="Proof Document PDF" class="pdf">
+               {% else %}
+                 <img src="{{ document.proof_file.url }}" alt="Proof Document Image">
+               {% endif %}
+             {% endif %}
+           </div>
+            <div class="document-description">
+              <h3>{{ document.proof_description }}</h3>
+              <p>Tanggal: {{ upload_date|date:"d F Y" }}</p>
+              <div class="d-flex gap-2 mx-md-0 mx-auto">
+                {% if document.proof_file.url|lower|endswith:".pdf" %}
+                  <button class="btn btn-primary" onclick="window.open('{{ document.proof_file.url }}', '_blank')">Lihat File</button>
+                {% else %}
+                  <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#universalModal" data-image-url="{{ document.proof_file.url }}">Lihat File<a>
+                {% endif %}
+                <a href="{{ document.proof_file.url }}" download class="btn btn-dark">Download</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% if not documents_with_dates %}
+        <div class="alert alert-info" role="alert">
+          Belum ada dokumen yang diunggah.
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="form-actions flex-column gap-3">
+      <div class="d-flex justify-content-center gap-3">
+        {% if pk %}
+          <a href="{% url 'create_archive_document' %}?pk={{ pk }}" class="btn btn-secondary">Tambah Arsip</a>
+        {% else %}
+          <a href="{% url 'create_archive_document' %}" class="btn btn-secondary">Tambah Arsip</a>
+        {% endif %}
+        <a href="{% url 'home' %}" class="btn btn-primary">Kembali</a>
+      </div>
+      {% if documents_with_dates %}
+        <button id="downloadAll" class="btn btn-dark">Download Semua</button>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="universalModal" tabindex="-1" aria-labelledby="universalModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="universalModalLabel">Lihat File</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <img src="" alt="Document Image" class="img-fluid" id="modalImage">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filter = document.querySelector('.filter select');
+      if (filter) {
+        filter.addEventListener('change', function() {
+          this.form.submit();
+        });
+      }
+
+      const modalImage = document.querySelector('#modalImage');
+      const myModal = new bootstrap.Modal(document.getElementById('universalModal'), {
+        keyboard: false
+      });
+    
+      const viewButtons = document.querySelectorAll('[data-bs-target="#universalModal"]');
+      viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const imageUrl = this.getAttribute('data-image-url');
+          document.querySelector('#modalImage').src = imageUrl;
+          myModal.show();
+        });
+      });
+
+      function isSafari() {
+        return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      }
+    
+      if (isSafari()) {
+        document.querySelectorAll('a[download]').forEach(function(downloadLink) {
+          downloadLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank');
+          });
+        });
+      }
+
+      const downloadAllButton = document.getElementById('downloadAll');
+      downloadAllButton.addEventListener('click', function() {
+        const documentLinks = document.querySelectorAll('a[download]');
+        const urls = Array.from(documentLinks).map(link => link.getAttribute('href'));
+
+        if (urls.length === 1) {
+          documentLinks[0].click();
+          return;
+        }
+    
+        fetch('{% url "download_documents" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({urls: urls})
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const blobUrl = window.URL.createObjectURL(blob);
+          const tempLink = document.createElement('a');
+          tempLink.href = blobUrl;
+          tempLink.setAttribute('download', 'documents.zip');
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          document.body.removeChild(tempLink);
+        })
+        .catch(error => console.error('Error downloading documents:', error));
+      });
+    
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+    });
+  </script>
+{% endblock %}

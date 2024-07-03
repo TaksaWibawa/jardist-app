@@ -6,7 +6,7 @@ def navigations(request):
         {"name": "LIST PK", "url": "list_pk"},
         {"name": "REGISTER ARSIP DOKUMEN", "url": "create_archive_document"},
         {"name": "REGISTER DOKUMENTASI PEKERJAAN", "url": "home"},
-        {"name": "VIEW ARSIP DOKUMEN", "url": "home"},
+        {"name": "VIEW ARSIP DOKUMEN", "url": "view_archive_document"},
         {"name": "VIEW DOKUMENTASI PEKERJAAN", "url": "home"}
     ]
 

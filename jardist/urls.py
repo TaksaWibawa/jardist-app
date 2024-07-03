@@ -1,6 +1,7 @@
 from django.urls import path
 from jardist.views import home_view, spk_view, pk_view, task_view
 from jardist.services import pk_service, task_service
+from jardist.utils import download_all_documents
 
 urlpatterns = [
   path('', home_view.HomePage, name='home'),
@@ -25,4 +26,7 @@ urlpatterns = [
   path('task/<uuid:task_id>/add-material/realization', task_service.AddRealizationMaterial, name='add_realization_material'),
 
   path('archive/create', pk_view.CreateArchiveDocumentPage, name='create_archive_document'),
+  path('archive/view', pk_view.ViewArchiveDocumentPage, name='view_archive_document'),
+
+  path('archive/download-all-documents', download_all_documents, name='download_documents'),
 ]
