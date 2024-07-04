@@ -1,8 +1,10 @@
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from jardist.forms.material_form import MaterialForm
 from jardist.forms.realization_task_form import RealizationTaskForm
 from jardist.forms.task_form import TaskForm
-from jardist.forms.material_form import MaterialForm
 from jardist.models.task_models import Task
 from jardist.services.task_service import create_subtask_material_formsets
 
@@ -21,7 +23,7 @@ def CreateTaskPage(request):
                     return redirect('view_pk', pk_id=task.pk_instance.id)
 
                 elif 'save_and_add_another' in request.POST:
-                    return redirect('create_task')
+                    return HttpResponseRedirect(reverse('create_task') + '?pk_id=' + str(pk_id))
             else:
                 messages.error(request, 'Data gagal disimpan')
         else:

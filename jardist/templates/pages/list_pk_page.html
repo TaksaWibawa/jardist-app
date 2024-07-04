@@ -20,93 +20,97 @@
         </form>
       </div>
       <div class="table-responsive-md w-100">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th scope="col" width="15%" class="align-middle text-center">No. PK</th>
-              <th scope="col" width="20%" class="align-middle text-center">Pekerjaan</th>
-              <th scope="col" width="20%" class="align-middle text-center">Nama</th>
-              <th scope="col" width="15%" class="align-middle text-center">Tanggal Akhir</th>
-              <th scope="col" width="15%" class="align-middle text-center">Status</th>
-              <th scope="col" width="15%" class="align-middle text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pk in pks %}
-              {% with pk.tasks.all as tasks %}
-                {% if tasks %}
-                  {% for task in tasks %}
-                  <tr class="{{ pk.end_date|row_color:pk.status }}">
-                      {% if forloop.first %}
-                        <td rowspan="{{ tasks|length }}" class="align-middle text-center">{{ pk.pk_number }}</td>
-                      {% endif %}
-                      <td class="align-middle text-center">{{ task.task_name|title }}</td>
-                      <td class="align-middle text-center">{{ task.customer_name|title }}</td>
-                      <td class="align-middle text-center">{{ pk.end_date }}</td>
-                      {% if forloop.first %}
-                        <td rowspan="{{ tasks|length }}" class="align-middle text-center">
-                          <span class="status-tag {% if pk.status == 'PEMBAYARAN' %}status-ktk_done{% elif pk.status == 'PEMELIHARAAN'  %}status-payment{% elif pk.status == 'SELESAI' %}status-pk_done{% else %}status-default{% endif %}">
-                            {{ pk.status|replace:"_, " }}
-                          </span>
-                        </td>
-                        <td rowspan="{{ tasks|length }}" class="align-middle text-center">
-                          <form method="post" id="actionForm{{ pk.pk_number }}">
-                            {% csrf_token %}
-                            <input type="hidden" name="pk_number" value="{{ pk.pk_number }}">
-                            <input type="hidden" name="action" id="actionInput{{ pk.pk_number }}">
-                          
-                            <div class="btn-group">
-                              <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Choose
-                              </button>
-                              <ul class="dropdown-menu" style="z-index: 1050;">
-                                <li class="dropdown-header text-left">Navigasi</li>
-                                <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
-                                <li><a class="dropdown-item" href="{% url 'update_bast' pk.id %}">BAST I</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="dropdown-header text-left">Ubah Status</li>
-                                <li><button class="dropdown-item status-change {% if pk.status == 'PEMBAYARAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMBAYARAN' %}disabled{% endif %} data-value="ktk_done" data-pk="{{ pk.pk_number }}">KTK Selesai</button></li>
-                                <li><button class="dropdown-item status-change {% if pk.status == 'PEMELIHARAAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMELIHARAAN' %}disabled{% endif %} data-value="payment" data-pk="{{ pk.pk_number }}">Terbayar</button></li>
-                                <li><button class="dropdown-item status-change {% if pk.status == 'SELESAI' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'SELESAI' %}disabled{% endif %} data-value="pk_done" data-pk="{{ pk.pk_number }}">Selesai</button></li>
-                              </ul>
-                            </div>
-                          </form>
-                        </td>
-                      {% endif %}
-                  </tr>
-                  {% endfor %}
-                {% else %}
-                  <tr class="{{ pk.end_date|row_color:pk.status }}">
-                    <td class="align-middle text-center">{{ pk.pk_number }}</td>
-                    <td colspan="3" class="align-middle text-center">Tidak ada pekerjaan</td>
-                    <td class="align-middle text-center">
-                      <span class="status-tag {% if pk.status == 'PEMBAYARAN' %}status-ktk_done{% elif pk.status == 'PEMELIHARAAN'  %}status-payment{% elif pk.status == 'SELESAI' %}status-pk_done{% else %}status-default{% endif %}">
-                        {{ pk.status|replace:"_, " }}
-                      </span>
-                    <td class="align-middle text-center">
-                      <form method="post" id="actionForm{{ pk.pk_number }}">
-                        {% csrf_token %}
-                        <input type="hidden" name="pk_number" value="{{ pk.pk_number }}">
-                        <input type="hidden" name="action" id="actionInput{{ pk.pk_number }}">
-                      
-                        <div class="btn-group">
-                          <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Choose
-                          </button>
-                          <ul class="dropdown-menu" style="z-index: 1050;">
-                            <li class="dropdown-header text-left">Navigasi</li>
-                            <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
-                            <li><a class="dropdown-item" href="{% url 'create_task' %}">Tambah Pekerjaan</a></li>
-                          </ul>
-                        </div>
-                      </form>
-                    </td>
-                  </tr>
-                {% endif %}
-              {% endwith %}
-            {% endfor %}
-          </tbody>
-        </table>
+        {% if pks %}
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col" width="15%" class="align-middle text-center">No. PK</th>
+                <th scope="col" width="20%" class="align-middle text-center">Pekerjaan</th>
+                <th scope="col" width="20%" class="align-middle text-center">Nama</th>
+                <th scope="col" width="15%" class="align-middle text-center">Tanggal Akhir</th>
+                <th scope="col" width="15%" class="align-middle text-center">Status</th>
+                <th scope="col" width="15%" class="align-middle text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pk in pks %}
+                {% with pk.tasks.all as tasks %}
+                  {% if tasks %}
+                    {% for task in tasks %}
+                    <tr class="{{ pk.end_date|row_color:pk.status }}">
+                        {% if forloop.first %}
+                          <td rowspan="{{ tasks|length }}" class="align-middle text-center">{{ pk.pk_number }}</td>
+                        {% endif %}
+                        <td class="align-middle text-center">{{ task.task_name|title }}</td>
+                        <td class="align-middle text-center">{{ task.customer_name|title }}</td>
+                        <td class="align-middle text-center">{{ pk.end_date }}</td>
+                        {% if forloop.first %}
+                          <td rowspan="{{ tasks|length }}" class="align-middle text-center">
+                            <span class="status-tag {% if pk.status == 'PEMBAYARAN' %}status-ktk_done{% elif pk.status == 'PEMELIHARAAN'  %}status-payment{% elif pk.status == 'SELESAI' %}status-pk_done{% else %}status-default{% endif %}">
+                              {{ pk.status|replace:"_, " }}
+                            </span>
+                          </td>
+                          <td rowspan="{{ tasks|length }}" class="align-middle text-center">
+                            <form method="post" id="actionForm{{ pk.pk_number }}">
+                              {% csrf_token %}
+                              <input type="hidden" name="pk_number" value="{{ pk.pk_number }}">
+                              <input type="hidden" name="action" id="actionInput{{ pk.pk_number }}">
+                            
+                              <div class="btn-group">
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Choose
+                                </button>
+                                <ul class="dropdown-menu" style="z-index: 1050;">
+                                  <li class="dropdown-header text-left">Navigasi</li>
+                                  <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
+                                  <li><a class="dropdown-item" href="{% url 'update_bast' pk.id %}">BAST I</a></li>
+                                  <li><hr class="dropdown-divider"></li>
+                                  <li class="dropdown-header text-left">Ubah Status</li>
+                                  <li><button class="dropdown-item status-change {% if pk.status == 'PEMBAYARAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMBAYARAN' %}disabled{% endif %} data-value="ktk_done" data-pk="{{ pk.pk_number }}">KTK Selesai</button></li>
+                                  <li><button class="dropdown-item status-change {% if pk.status == 'PEMELIHARAAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMELIHARAAN' %}disabled{% endif %} data-value="payment" data-pk="{{ pk.pk_number }}">Terbayar</button></li>
+                                  <li><button class="dropdown-item status-change {% if pk.status == 'SELESAI' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'SELESAI' %}disabled{% endif %} data-value="pk_done" data-pk="{{ pk.pk_number }}">Selesai</button></li>
+                                </ul>
+                              </div>
+                            </form>
+                          </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr class="{{ pk.end_date|row_color:pk.status }}">
+                      <td class="align-middle text-center">{{ pk.pk_number }}</td>
+                      <td colspan="3" class="align-middle text-center">Tidak ada pekerjaan</td>
+                      <td class="align-middle text-center">
+                        <span class="status-tag {% if pk.status == 'PEMBAYARAN' %}status-ktk_done{% elif pk.status == 'PEMELIHARAAN'  %}status-payment{% elif pk.status == 'SELESAI' %}status-pk_done{% else %}status-default{% endif %}">
+                          {{ pk.status|replace:"_, " }}
+                        </span>
+                      <td class="align-middle text-center">
+                        <form method="post" id="actionForm{{ pk.pk_number }}">
+                          {% csrf_token %}
+                          <input type="hidden" name="pk_number" value="{{ pk.pk_number }}">
+                          <input type="hidden" name="action" id="actionInput{{ pk.pk_number }}">
+                        
+                          <div class="btn-group">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Choose
+                            </button>
+                            <ul class="dropdown-menu" style="z-index: 1050;">
+                              <li class="dropdown-header text-left">Navigasi</li>
+                              <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
+                              <li><a class="dropdown-item" href="{% url 'create_task' %}">Tambah Pekerjaan</a></li>
+                            </ul>
+                          </div>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="alert alert-info text-center">Tidak ada PK yang tersedia</p>
+        {% endif %}
       </div>
     </div>
   </section>

@@ -50,11 +50,13 @@
       {% endfor %}
     </div>
   </div>
-  <button type="submit" class="btn btn-primary">
-    {% if form.instance.pk %}
+  <div class="form-actions mt-3">
+    <button type="submit" class="btn btn-primary">
+      {% if form.instance.pk %}
       Simpan Perubahan
-    {% else %}
+      {% else %}
       Simpan & Register Pekerjaan
-    {% endif %}
-  </button>
+      {% endif %}
+    </button>
+  </div>
 </form>

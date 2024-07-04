@@ -17,7 +17,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('task-form');
         const fieldsToDisable = ['execution_time'];
-        const fieldsToUpdate = ['pk_instance'];
 
         fieldsToDisable.forEach(fieldId => {
             const field = document.getElementById(fieldId);
@@ -35,21 +34,30 @@
             });
         });
 
-        fieldsToUpdate.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            field.addEventListener('change', function() {
-                const selectedValue = field.value;
+        $('#pk_instance').select2();
+        $('#pk_instance').on('select2:select', function(e) {
+            const selectedValue = e.params.data.id;
 
-                if (selectedValue) {
-                    fetch(`{% url 'get_pk_data' %}?pk_id=${selectedValue}&field=execution_time`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('execution_time').value = data.execution_time;
-                        });
-                } else {
-                    document.getElementById('execution_time').value = '';
-                }
-            });
+            if (selectedValue) {
+                fetch(`{% url 'get_pk_data' %}?pk_id=${selectedValue}&field=execution_time`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('execution_time').value = data.execution_time;
+
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('pk_id', selectedValue);
+                        window.history.replaceState({}, '', url);
+                    }).catch(error => {
+                        console.error(error);
+                        document.getElementById('execution_time').value = '';
+                    });
+            } else {
+                document.getElementById('execution_time').value = '';
+
+                const url = new URL(window.location.href);
+                url.searchParams.delete('pk_id');
+                window.history.replaceState({}, '', url);
+            }
         });
 
         const isWithTemplateCheckbox = document.getElementById('{{ form.is_with_template.id_for_label }}');

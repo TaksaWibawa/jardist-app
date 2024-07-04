@@ -87,7 +87,7 @@
         {% else %}
           <a href="{% url 'create_archive_document' %}" class="btn btn-secondary">Tambah Arsip</a>
         {% endif %}
-        <a href="{% url 'home' %}" class="btn btn-primary">Kembali</a>
+        <a href="{% url 'list_pk' %}" class="btn btn-primary">Kembali</a>
       </div>
       {% if documents_with_dates %}
         <button id="downloadAll" class="btn btn-dark">Download Semua</button>

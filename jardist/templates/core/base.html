@@ -37,6 +37,9 @@
         {% block content %}
           Base Content
         {% endblock content %}
+        <button id="backToTopBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 100;" class="btn btn-secondary">
+          <i class="fas fa-arrow-up"></i>
+        </button>
       </main>
       <div class="toast-container">
         {% for message in messages %}
@@ -56,19 +59,41 @@
         {% endfor %}
       </div>
     </div>
-<aside class="offcanvas offcanvas-start" tabindex="-1" id="drawer" aria-labelledby="drawerLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="drawerLabel">JARDIST MENU</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <nav class="offcanvas-body">
-    <div class="d-grid gap-2">
-      {% for item in NAV_ITEMS %}
-        <button class="btn btn-primary" type="button" data-bs-dismiss="offcanvas" onclick="location.href='{% url item.url %}'">{{ item.name }}</button>
-      {% endfor %}
-    </div>
-  </nav>
-</aside>
+    <aside class="offcanvas offcanvas-start" tabindex="-1" id="drawer" aria-labelledby="drawerLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="drawerLabel">JARDIST MENU</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <nav class="offcanvas-body d-flex flex-column justify-content-between h-75">
+        <div class="accordion" id="menuAccordion">
+          {% for item in NAV_ITEMS %}
+            {% if item.name != "HOME" %}
+              {% if item.sub_items %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                    <button class="accordion-button {% if not item.open_accordion %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="{% if item.open_accordion %}true{% else %}false{% endif %}" aria-controls="collapse{{ forloop.counter }}">
+                      {{ item.name }}
+                    </button>
+                  </h2>
+                  <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if item.open_accordion %}show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#menuAccordion">
+                    <div class="accordion-body">
+                      <div class="d-grid gap-2">
+                        {% for sub_item in item.sub_items %}
+                          <button class="btn {% if sub_item.is_active %}btn-primary{% else %}btn-outline-primary{% endif %}" type="button" data-bs-dismiss="offcanvas" onclick="location.href='{% url sub_item.url %}'">{{ sub_item.name }}</button>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if request.path != '/' %}
+          <button class="btn btn-primary mb-2 w-100 mt-3" type="button" data-bs-dismiss="offcanvas" onclick="location.href='{% url 'list_pk' %}'">Kembali ke List PK</button>
+        {% endif %}
+      </nav>
+    </aside>
   </body>
   {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>

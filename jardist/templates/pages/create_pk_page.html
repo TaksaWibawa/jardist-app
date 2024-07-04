@@ -52,6 +52,18 @@
         document.getElementById(fieldId).addEventListener('change', updateEndDate);
       });
 
+      $('#{{ form.spk.id_for_label }}').select2();
+      $('#{{ form.spk.id_for_label }}').on('select2:select', function(e) {
+        const selectedValue = e.params.data.id;
+        const url = new URL(window.location);
+        if (selectedValue) {
+          url.searchParams.set('spk_id', selectedValue);
+        } else {
+          url.searchParams.delete('spk_id');
+        }
+        window.history.pushState({}, '', url);
+      });
+
       if (!document.getElementById('start_date').value) {
         const today = new Date();
         document.getElementById('start_date').value = today.toISOString().split('T')[0];
