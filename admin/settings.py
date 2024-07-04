@@ -30,7 +30,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -140,7 +140,9 @@ USE_TZ = True
 
 STATIC_ROOT= os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'admin/static'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -158,6 +160,7 @@ ADMIN_REORDER = (
     {'app': 'jardist', 'label': 'Kontrak', 'models': (
         'jardist.SPK',
         'jardist.PKStatusAudit',
+        'jardist.PKArchiveDocument',
     )},
 
     {'app': 'jardist', 'label': 'Pekerjaan', 'models': (
