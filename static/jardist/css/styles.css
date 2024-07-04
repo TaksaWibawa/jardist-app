@@ -794,4 +794,8 @@ h1, h2, h3, h4, h5, h6 {
   .offcanvas {
     width: 100%;
   }
+
+  .form-actions button, .form-actions a {
+    width: 100%;
+  }
 }

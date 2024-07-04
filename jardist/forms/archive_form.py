@@ -20,13 +20,13 @@ class DocumentForm(forms.ModelForm):
         widgets = {
             'pickup_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.jpg, .jpeg, .png, .pdf', 'required': True}),
             'pickup_description': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Reservasi atau Kode 7'}),
-            'proof_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.jpg, .jpeg, .png, .pdf', 'required': True}),
-            'proof_description': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Faktur Pengambilan'}),
+            'proof_file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.jpg, .jpeg, .png, .pdf'}),
+            'proof_description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Faktur Pengambilan'}),
         }
         labels = {
-            'pickup_file': 'Dokumen Pengambilan Barang',
+            'pickup_file': 'Dokumen Utama',
             'pickup_description': 'Keterangan',
-            'proof_file': 'Bukti Pengambilan Barang',
+            'proof_file': 'Dokumen Pendukung',
             'proof_description': 'Keterangan',
         }
 

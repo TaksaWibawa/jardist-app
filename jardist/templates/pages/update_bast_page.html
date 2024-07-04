@@ -46,28 +46,30 @@
             <span class="task-list__end-date__value text-danger">{{ pk.end_date }}</span>
           </p>
           {% if tasks %}
-            <table class="table fixed">
-              <thead>
-                <tr>
-                  <th scope="col" width="20%">Nama Pekerjaan</th>
-                  <th scope="col" width="20%">Jenis Pekerjaan</th>
-                  <th scope="col" width="20%">Nama Pelanggan</th>
-                  <th scope="col" width="20%">Lokasi</th>
-                  <th scope="col" width="10%">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for task in tasks %}
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
                   <tr>
-                    <td>{{ task.task_name }}</td>
-                    <td>{{ task.task_type }}</td>
-                    <td>{{ task.customer_name }}</td>
-                    <td>{{ task.location }}</td>
-                    <td>{{ task.status }}</td>
+                    <th scope="col" width="20%">Nama Pekerjaan</th>
+                    <th scope="col" width="20%">Jenis Pekerjaan</th>
+                    <th scope="col" width="20%">Nama Pelanggan</th>
+                    <th scope="col" width="20%">Lokasi</th>
+                    <th scope="col" width="10%">Status</th>
                   </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {% for task in tasks %}
+                    <tr>
+                      <td>{{ task.task_name }}</td>
+                      <td>{{ task.task_type }}</td>
+                      <td>{{ task.customer_name }}</td>
+                      <td>{{ task.location }}</td>
+                      <td>{{ task.status }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           {% else %}
             <p class="alert alert-info">Tidak ada pekerjaan yang tersedia</p>
           {% endif %}

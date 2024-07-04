@@ -81,7 +81,7 @@
     </div>
 
     <div class="form-actions flex-column gap-3">
-      <div class="d-flex justify-content-center gap-3">
+      <div class="d-flex justify-content-center gap-3 w-100">
         {% if pk %}
           <a href="{% url 'create_archive_document' %}?pk={{ pk }}" class="btn btn-secondary">Tambah Arsip</a>
         {% else %}
@@ -123,7 +123,7 @@
           this.form.submit();
         });
       }
-
+    
       const modalImage = document.querySelector('#modalImage');
       const myModal = new bootstrap.Modal(document.getElementById('universalModal'), {
         keyboard: false
@@ -133,11 +133,11 @@
       viewButtons.forEach(button => {
         button.addEventListener('click', function() {
           const imageUrl = this.getAttribute('data-image-url');
-          document.querySelector('#modalImage').src = imageUrl;
+          modalImage.src = imageUrl;
           myModal.show();
         });
       });
-
+    
       function isSafari() {
         return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
       }
@@ -150,52 +150,47 @@
           });
         });
       }
-
-      const downloadAllButton = document.getElementById('downloadAll');
-      downloadAllButton.addEventListener('click', function() {
+    
+      document.querySelector('#downloadAll').addEventListener('click', function() {
         const documentLinks = document.querySelectorAll('a[download]');
         const urls = Array.from(documentLinks).map(link => link.getAttribute('href'));
-
+    
         if (urls.length === 1) {
           documentLinks[0].click();
           return;
         }
     
-        fetch('{% url "download_documents" %}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
-          body: JSON.stringify({urls: urls})
-        })
-        .then(response => response.blob())
-        .then(blob => {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const tempLink = document.createElement('a');
-          tempLink.href = blobUrl;
-          tempLink.setAttribute('download', 'documents.zip');
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          document.body.removeChild(tempLink);
-        })
-        .catch(error => console.error('Error downloading documents:', error));
+        downloadDocuments(urls);
       });
-    
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-            }
-          }
-        }
-        return cookieValue;
-      }
     });
-  </script>
+    
+    function downloadDocuments(urls) {
+      fetch('{% url "download_documents" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({urls: urls})
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const downloadUrl = URL.createObjectURL(blob);
+        const tempLink = document.createElement('a');
+        tempLink.href = downloadUrl;
+        tempLink.setAttribute('download', 'documents.zip');
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+      })
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
+    }
+    </script>
 {% endblock %}

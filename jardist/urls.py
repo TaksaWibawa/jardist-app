@@ -27,6 +27,5 @@ urlpatterns = [
 
   path('archive/create', pk_view.CreateArchiveDocumentPage, name='create_archive_document'),
   path('archive/view', pk_view.ViewArchiveDocumentPage, name='view_archive_document'),
-
   path('archive/download-all-documents', download_all_documents, name='download_documents'),
 ]
