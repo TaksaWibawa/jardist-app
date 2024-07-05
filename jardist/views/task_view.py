@@ -78,7 +78,7 @@ def UpdateRealizationTaskMaterialPage(request, task_id):
             for material, formset in formsets_data:
                 formset.save()
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('view_pk', task_id=task.id)
+            return redirect('view_pk', pk_id=task.pk_instance.id)
         else:
             messages.error(request, 'Data gagal disimpan')
 
