@@ -59,6 +59,30 @@
             <span class="info-value">: {{ task_data.task.task_name }}</span>
           </h3>
         </div>
+        <div class="task-navigation my-3 d-flex gap-3 align-items-center">
+          {% if tasks_page.has_previous %}
+            <a href="?page={{ tasks_page.previous_page_number }}" class="btn btn-primary">Pekerjaan Sebelumnya</a>
+          {% else %}
+            <button class="btn btn-primary" disabled>Pekerjaan Sebelumnya</button>
+          {% endif %}
+
+          <span class="current text-center">
+            Pekerjaan {{ tasks_page.number }} dari {{ tasks_page.paginator.num_pages }}
+          </span>
+        
+          {% if tasks_page.has_next %}
+            <a href="?page={{ tasks_page.next_page_number }}" class="btn btn-primary">Pekerjaan Selanjutnya</a>
+          {% else %}
+            <button class="btn btn-primary" disabled>Pekerjaan Selanjutnya</button>
+          {% endif %}
+        </div>
+        <div class="alert alert-secondary w-100 mb-0" role="alert">
+          <strong>Informasi Tambahan:</strong>
+          <ul class="d-flex flex-column gap-2 mt-2">
+            <li><strong>Material Tambahan</strong> - ditandai dengan warna <span style="background-color: lightblue; padding: 4px; font-weight: 600;">biru muda</span></li>
+            <li><strong>Volume Berubah</strong> - ditandai dengan warna <span style="background-color: #FFFF99; padding: 4px; font-weight: 600;">kuning muda</span></li>
+          </ul>
+        </div>
         {% for sub_task, materials_by_category in task_data.sub_tasks_materials_by_category.items %}
           <div class="sub-task">
             <h4>{{ forloop.counter|int_to_alphabet }}. {{ sub_task.sub_task_type.name }}</h4>
@@ -105,23 +129,23 @@
         {% endfor %}
         <div class="task-actions">
           <a href={% url 'edit_task' task_data.task.id %} class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
-          <a href={% url 'update_realization_task' task_data.task.id %}  class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
+          <a href={% url 'update_realization_material' task_data.task.id %}  class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
         </article>
         <div class="pagination">
           {% if tasks_page.has_previous %}
-            <a href="?page={{ tasks_page.previous_page_number }}">Sebelumnya</a>
+            <a href="?page={{ tasks_page.previous_page_number }}" class="btn btn-primary">Pekerjaan Sebelumnya</a>
           {% else %}
-            <span class="disabled">Sebelumnya</span>
+            <button class="btn btn-primary" disabled>Pekerjaan Sebelumnya</button>
           {% endif %}
         
           <span class="current">
-            Hal. {{ tasks_page.number }} dari {{ tasks_page.paginator.num_pages }}
+            Pekerjaan {{ tasks_page.number }} dari {{ tasks_page.paginator.num_pages }}
           </span>
         
           {% if tasks_page.has_next %}
-            <a href="?page={{ tasks_page.next_page_number }}">Selanjutnya</a>
+            <a href="?page={{ tasks_page.next_page_number }}" class="btn btn-primary">Pekerjaan Selanjutnya</a>
           {% else %}
-            <span class="disabled">Selanjutnya</span>
+            <button class="btn btn-primary" disabled>Pekerjaan Selanjutnya</button>
           {% endif %}
         </div>
       {% endfor %}

@@ -1,10 +1,9 @@
 from django.urls import path
-from jardist.views import home_view, spk_view, pk_view, task_view
+from jardist.views import spk_view, pk_view, task_view
 from jardist.services import pk_service, task_service
 from jardist.utils import download_all_documents
 
 urlpatterns = [
-  # path('', home_view.HomePage, name='home'),
   path('', pk_view.ListPKPage, name='list_pk'),
 
   path('spk/create', spk_view.CreateSPKPage, name='create_spk'),
@@ -20,7 +19,6 @@ urlpatterns = [
   path('task/create', task_view.CreateTaskPage, name='create_task'),
   path('task/<uuid:task_id>/edit', task_view.EditTaskPage, name='edit_task'),
   path('task/<uuid:task_id>/edit-material', task_view.EditTaskMaterialPage, name='edit_task_material'),
-  path('task/<uuid:task_id>/update-realization/task', task_view.UpdateRealizationTaskPage, name='update_realization_task'),
   path('task/<uuid:task_id>/update-realization/material', task_view.UpdateRealizationTaskMaterialPage, name='update_realization_material'),
   path('task/<uuid:task_id>/add-material/rab', task_service.AddRABMaterial, name='add_rab_material'),
   path('task/<uuid:task_id>/add-material/realization', task_service.AddRealizationMaterial, name='add_realization_material'),

@@ -3,7 +3,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from jardist.forms.material_form import MaterialForm
-from jardist.forms.realization_task_form import RealizationTaskForm
 from jardist.forms.task_form import TaskForm
 from jardist.models.task_models import Task
 from jardist.services.task_service import create_subtask_material_formsets
@@ -69,24 +68,6 @@ def EditTaskMaterialPage(request, task_id):
 
     return render(request, 'pages/edit_task_material_page.html', context)
 
-def UpdateRealizationTaskPage(request, task_id):
-    task = Task.objects.get(id=task_id)
-    form = RealizationTaskForm(request.POST or None, instance=task)
-
-    if request.method == 'POST':
-        if form.is_valid():
-            if form.has_changed():
-                task = form.save(commit=False)
-                task.save()
-
-            messages.success(request, 'Data berhasil disimpan')
-            return redirect('view_pk', pk_id=task.pk_instance.id)
-        else:
-            messages.error(request, 'Data gagal disimpan')
-
-    context = {'form': form, 'task': task}
-    return render(request, 'pages/update_realization_task_page.html', context)
-
 def UpdateRealizationTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='realization')
@@ -97,7 +78,7 @@ def UpdateRealizationTaskMaterialPage(request, task_id):
             for material, formset in formsets_data:
                 formset.save()
             messages.success(request, 'Data berhasil disimpan')
-            return redirect('update_realization_task', task_id=task.id)
+            return redirect('view_pk', task_id=task.id)
         else:
             messages.error(request, 'Data gagal disimpan')
 

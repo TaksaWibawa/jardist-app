@@ -62,7 +62,7 @@
             {% endfor %}
           {% endif %}
           <div class="form-actions">
-            <a href="{% url 'update_realization_task' task.id %}" class="btn btn-secondary">Kembali</a>
+            <a href="{% url 'view_pk' task.pk_instance.id %}" class="btn btn-secondary">Kembali</a>
             {% if formsets %}
               <button type="submit" value="save_realization" class="btn btn-primary">Simpan Perubahan</button>
             {% endif %}

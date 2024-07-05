@@ -19,6 +19,15 @@
           </select>
         </form>
       </div>
+      <div class="alert alert-secondary w-100 mb-0" role="alert">
+        <strong>Informasi Status PK:</strong>
+        <ul class="d-flex flex-column gap-2 mt-2">
+          <li><strong>PK Selesai</strong> - ditandai dengan warna <span style="background-color: #d4edda; padding: 4px; font-weight: 600;">hijau muda</span></li>
+          <li><strong>Tenggat waktu telah lewat</strong> - ditandai dengan warna <span style="background-color: #f8d7da; padding: 4px; font-weight: 600;">merah muda</span></li>
+          <li><strong>Tenggat waktu kurang dari 7 hari</strong> - ditandai dengan warna <span style="background-color: #fff3cd; padding: 4px; font-weight: 600;">kuning muda</span></li>
+          <li><strong>Default</strong> - ditandai dengan warna <span style="background-color: #b8daff; padding: 4px; font-weight: 600;">biru muda</span></li>
+        </ul>
+      </div>
       <div class="table-responsive-md w-100">
         {% if pks %}
           <table class="table table-bordered">

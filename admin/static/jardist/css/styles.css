@@ -378,20 +378,6 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 2rem;
 }
 
-.pagination a {
-  margin: 0 10px;
-  text-decoration: none;
-  color: #fff;
-  background-color: #007BFF;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.pagination a:hover {
-  background-color: #0056b3;
-}
-
 .pagination .current {
   margin: 0 10px;
   color: #333;
@@ -399,16 +385,6 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 5px;
   flex-grow: 1;
   text-align: center;
-}
-
-.pagination .disabled {
-  display: inline-block;
-  margin: 0 10px;
-  padding: 10px 15px;
-  background-color: #459fff;
-  color: #fff;
-  border-radius: 5px;
-  cursor: not-allowed;
 }
 
 .material-form {
@@ -700,6 +676,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-primary:hover, .btn-primary:focus {
   background-color: #A71D2A;
+}
+
+.btn-primary:disabled {
+  background-color: #C82333;
+  cursor: not-allowed;
 }
 
 .centered-btn {

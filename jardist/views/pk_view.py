@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
 from jardist.forms.archive_form import DocumentFormSet, PKSelectForm
-from jardist.forms.bast_form import BASTForm
+from jardist.forms.bast_form import BASTForm, UpdateTaskStatusFormset
 from jardist.forms.pk_form import PKForm
 from jardist.models.contract_models import SPK, PK, PKArchiveDocument
 from jardist.models.task_models import Task
@@ -56,18 +56,22 @@ def EditPKPage(request, pk_id):
 
 def UpdateBASTPage(request, pk_id):
     pk = PK.objects.get(id=pk_id)
-    form = BASTForm(request.POST or None, instance=pk)
     tasks = Task.objects.filter(pk_instance=pk).order_by('id')
+    form = BASTForm(request.POST or None, instance=pk)
+
+    formset = UpdateTaskStatusFormset(request.POST or None, queryset=tasks, prefix='task')
 
     if request.method == 'POST':
-        if form.is_valid():
+        if form.is_valid() and formset.is_valid():
             form.save()
+            formset.save()
             messages.success(request, 'Data berhasil disimpan')
             return redirect('view_pk', pk_id=pk_id)
         else:
             messages.error(request, 'Data gagal disimpan')
         
-    context = {'form': form, 'pk': pk, 'tasks': tasks}
+    tasks_and_forms = list(zip(tasks, formset.forms))
+    context = {'form': form, 'pk': pk, 'tasks_and_forms': tasks_and_forms, 'formset': formset, 'tasks': tasks}
 
     return render(request, 'pages/update_bast_page.html', context)
 

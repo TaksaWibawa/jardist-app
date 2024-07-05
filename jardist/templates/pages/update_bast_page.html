@@ -50,21 +50,23 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th scope="col" width="20%">Nama Pekerjaan</th>
+                    <th scope="col" width="25%">Nama Pekerjaan</th>
                     <th scope="col" width="20%">Jenis Pekerjaan</th>
                     <th scope="col" width="20%">Nama Pelanggan</th>
                     <th scope="col" width="20%">Lokasi</th>
-                    <th scope="col" width="10%">Status</th>
+                    <th scope="col" width="15%">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for task in tasks %}
+                  {{ formset.management_form }}
+                  {% for task, form in tasks_and_forms %}
                     <tr>
+                      <td style="display:none;">{{ form.id }}</td>
                       <td>{{ task.task_name }}</td>
                       <td>{{ task.task_type }}</td>
                       <td>{{ task.customer_name }}</td>
                       <td>{{ task.location }}</td>
-                      <td>{{ task.status }}</td>
+                      <td>{{ form.status }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>
