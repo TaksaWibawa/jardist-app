@@ -144,6 +144,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'admin/static'),
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -169,6 +172,7 @@ ADMIN_REORDER = (
         'jardist.Task',
         'jardist.SubTask',
         'jardist.SubTaskMaterial',
+        'jardist.TaskDocumentation',
         'jardist.TemplateRAB',
     )},
 

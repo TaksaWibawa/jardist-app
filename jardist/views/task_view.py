@@ -2,8 +2,10 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from jardist.forms.documentation_form import TaskDocumentationForm, TaskDocumentationPhotoFormSet
 from jardist.forms.material_form import MaterialForm
 from jardist.forms.task_form import TaskForm
+from jardist.models.contract_models import PK
 from jardist.models.task_models import Task
 from jardist.services.task_service import create_subtask_material_formsets
 
@@ -85,4 +87,62 @@ def UpdateRealizationTaskMaterialPage(request, task_id):
     context = {'formsets': formsets, 'task': task, 'material_form': material_form}
     return render(request, 'pages/update_realization_task_material_page.html', context)
 
+def CreateDocumentationPage(request):
+    pk_id = request.GET.get('pk', None)
+    pk_instance = PK.objects.get(id=pk_id) if pk_id else None
+    form = TaskDocumentationForm(request.POST or None, initial={'pk_instance': pk_instance})
+    formset = TaskDocumentationPhotoFormSet(request.POST or None, request.FILES or None, prefix='documentation')
 
+    if request.method == 'POST':
+        if form.is_valid() and formset.is_valid():
+            task_documentation = form.save()
+            formset.instance = task_documentation
+            formset.save()
+
+            messages.success(request, 'Data berhasil disimpan')
+            return redirect('view_documentation')
+        else:
+            messages.error(request, 'Data gagal disimpan')
+
+    context = {
+        'form': form,
+        'formset': formset,
+    }
+
+    return render(request, 'pages/create_documentation_page.html', context)
+
+def ViewDocumentationPage(request):
+    pk_number = request.GET.get('pk')
+    task_name = request.GET.get('task')
+    tasks_with_documentations_and_photos = []
+    pk = None
+    pks = PK.objects.all().order_by('pk_number')
+    all_tasks = Task.objects.all().order_by('task_name')
+
+    if pk_number:
+        try:
+            pk = PK.objects.get(pk_number=pk_number)
+            dropdown_tasks = Task.objects.filter(pk_instance=pk).order_by('task_name')
+            tasks = dropdown_tasks.filter(task_name=task_name) if task_name else dropdown_tasks
+        except PK.DoesNotExist:
+            messages.error(request, 'Data tidak ditemukan')
+            tasks = Task.objects.none()
+            dropdown_tasks = Task.objects.none()
+    else:
+        tasks = all_tasks
+        dropdown_tasks = all_tasks
+
+    for task in tasks:
+        documentations = task.documentations.all().order_by('created_at')
+        for documentation in documentations:
+            photos = documentation.photos.all().order_by('id')
+            tasks_with_documentations_and_photos.append((task, documentation, photos))
+
+    context = {
+        'pks': pks,
+        'tasks': dropdown_tasks,
+        'tasks_with_documentations_and_photos': tasks_with_documentations_and_photos,
+        'selected_pk_number': pk_number,
+        'selected_task_name': task_name,
+    }
+    return render(request, 'pages/view_documentation_page.html', context)

@@ -11,14 +11,14 @@ def navigations(request):
                 {"name": "REGISTER PK", "url": "create_pk"},
                 {"name": "REGISTER PEKERJAAN", "url": "create_task"},
                 {"name": "REGISTER ARSIP DOKUMEN", "url": "create_archive_document"},
-                {"name": "REGISTER DOKUMENTASI PEKERJAAN", "url": "create_archive_document"},
+                {"name": "REGISTER DOKUMENTASI PEKERJAAN", "url": "create_documentation"},
             ],
         },
         {
             "name": "LIHAT DATA",
             "sub_items": [
                 {"name": "VIEW ARSIP DOKUMEN", "url": "view_archive_document"},
-                {"name": "VIEW DOKUMENTASI PEKERJAAN", "url": "view_archive_document"},
+                {"name": "VIEW DOKUMENTASI PEKERJAAN", "url": "view_documentation"},
             ],
         },
     ]

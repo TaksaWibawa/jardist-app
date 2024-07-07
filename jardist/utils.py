@@ -29,7 +29,7 @@ def download_all_documents(request):
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
             for url in urls:
                 print(f"Fetching {url}")
-                if url.startswith('/static/'):
+                if url.startswith('/media/'):
                     file_path = os.path.join(settings.BASE_DIR, url[1:])
                     try:
                         with open(file_path, 'rb') as file:

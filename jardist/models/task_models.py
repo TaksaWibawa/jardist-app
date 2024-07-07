@@ -53,7 +53,7 @@ class Task(Auditable):
     location = models.CharField(max_length=100, verbose_name='Lokasi Pekerjaan')
     execution_time = models.IntegerField(verbose_name='Waktu Pelaksanaan')
     maintenance_time = models.IntegerField(verbose_name='Waktu Pemeliharaan')
-    rab = models.FileField(upload_to='static/jardist/files/rab/', null=True, blank=True, verbose_name='RAB')
+    rab = models.FileField(upload_to='rab/', null=True, blank=True, verbose_name='RAB')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='On Progress', verbose_name='Status')
 
     class Meta:
@@ -121,7 +121,7 @@ class SubTaskMaterial(models.Model):
 
 class TemplateRAB(Auditable):
     task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE, verbose_name='Jenis Pekerjaan')
-    rab = models.FileField(upload_to='static/jardist/files/rab/', verbose_name='Template RAB', help_text='Upload file RAB dalam format CSV')
+    rab = models.FileField(upload_to='rab/', verbose_name='Template RAB', help_text='Upload file RAB dalam format CSV')
 
     class Meta:
         verbose_name = 'Template RAB'
@@ -137,10 +137,8 @@ class TemplateRAB(Auditable):
     def __str__(self):
         return self.task_type.name
     
-class TaskDocumentation(models.Model):
+class TaskDocumentation(Auditable):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='documentations', verbose_name='Pekerjaan')
-    photo = models.FileField(upload_to='static/jardist/files/task_documentations/', verbose_name='Foto')
-    description = models.TextField(verbose_name='Deskripsi')
     location = models.CharField(max_length=255, verbose_name='Lokasi')
 
     class Meta:
@@ -148,4 +146,16 @@ class TaskDocumentation(models.Model):
         verbose_name_plural = 'Dokumentasi Pekerjaan'
 
     def __str__(self):
-        return f"{self.task.task_name} - {self.description}"
+        return f"{self.task.task_name} - {self.location}"
+
+class TaskDocumentationPhoto(Auditable):
+    task_documentation = models.ForeignKey(TaskDocumentation, on_delete=models.CASCADE, related_name='photos', verbose_name='Dokumentasi Pekerjaan')
+    photo = models.FileField(upload_to='task_documentation/', verbose_name='Foto')
+    description = models.CharField(max_length=255, verbose_name='Deskripsi')
+
+    class Meta:
+        verbose_name = 'Foto Dokumentasi Pekerjaan'
+        verbose_name_plural = 'Foto Dokumentasi Pekerjaan'
+
+    def __str__(self):
+        return f"{self.task_documentation.task.task_name} - {self.description}"

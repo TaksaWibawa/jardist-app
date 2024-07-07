@@ -1,0 +1,183 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block page_title %}Buat Dokumentasi Pekerjaan{% endblock page_title %}
+{% block title %}BUAT DOKUMENTASI PEKERJAAN{% endblock title %}
+
+{% block content %}
+  <section class="form-page">
+    <div class="form-page__content">
+      <form method="post" class="form-page__content__form" id="documentation-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row mb-3">
+          <label for="{{ form.pk_instance.id_for_label }}">{{ form.pk_instance.label }}</label>
+          <div class="input-group">
+            {{ form.pk_instance }}
+          </div>
+          {% for error in form.pk_instance.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="row mb-3">
+          <label for="{{ form.task_instance.id_for_label }}">{{ form.task_instance.label }}</label>
+          <div class="input-group">
+            {{ form.task_instance }}
+          </div>
+          {% for error in form.task_instance.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="row mb-3">
+          <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+          <div class="input-group">
+            {{ form.location }}
+          </div>
+          {% for error in form.location.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div id="formset" class="formset">
+          {{ formset.management_form }}
+          {% for form in formset %}
+            <div class="formset-row-unstyled">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
+                  <div class="input-group">
+                    {{ form.photo }}
+                  </div>
+                  {% for error in form.photo.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                  <div class="input-group">
+                    {{ form.description }}
+                  </div>
+                  {% for error in form.description.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <button type="button" class="btn btn-danger delete-formset">Hapus</button>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="form-actions flex-row">
+          <button type="button" id="add-formset" class="btn btn-secondary">Tambah Foto</button>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      $('#pk_instance').select2();
+      $('#task_instance').select2().prop('disabled', true);
+    
+      function fetchTaskData(pk) {
+        if (pk) {
+          $('#task_instance').prop('disabled', false);
+    
+          const url = new URL(window.location.href);
+          url.searchParams.set('pk', pk);
+          window.history.pushState({}, '', url);
+          
+          fetch(`{% url 'get_task_data' %}?pk=${pk}`)
+          .then(response => response.json())
+          .then(data => {
+            $('#task_instance').select2('destroy').empty().prop('disabled', false);
+            
+            const taskField = document.getElementById('task_instance');
+            data.forEach(task => {
+              const option = new Option(task.task_name, task.id, false, false);
+              taskField.appendChild(option);
+            });
+    
+            $('#task_instance').select2({
+              theme: "bootstrap-5"
+            });
+    
+            $('.select2-container--bootstrap-5 .select2-selection').addClass('form-control');
+    
+          })
+          .catch(error => console.error('Error fetching tasks:', error));
+        } else {
+          $('#task_instance').prop('disabled', true).select2('destroy').empty();
+          const option = new Option('Pilih Pekerjaan', '', false, false);
+          $('#task_instance').append(option);
+          $('#task_instance').select2({
+            theme: "bootstrap-5"
+          });
+        }
+      }
+    
+      $('#pk_instance').on('select2:select', function (e) {
+        fetchTaskData(e.params.data.id);
+      });
+    
+      $('#pk_instance').on('select2:clear', function (e) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('pk');
+        window.history.pushState({}, '', url);
+
+        $('#task_instance').prop('disabled', true).select2('destroy').empty();
+        $('#task_instance').select2({
+          theme: "bootstrap-5"
+        });
+      });
+
+      const initialPk = $('#pk_instance').val();
+      if (initialPk) {
+        fetchTaskData(initialPk);
+      }
+
+      const container = document.querySelector('#formset');
+      const addButton = document.getElementById('add-formset');
+      const totalForms = document.getElementById('id_documentation-TOTAL_FORMS');
+
+      function manageDeleteButtons() {
+        const deleteButtons = document.querySelectorAll('.delete-formset');
+        deleteButtons.forEach((button, index) => {
+          button.classList.toggle('d-none', index === 0);
+        });
+      }
+
+      manageDeleteButtons();
+
+      addButton.addEventListener('click', function () {
+        let newForm = container.querySelector('.formset-row-unstyled:last-of-type').cloneNode(true);
+        let formNum = parseInt(totalForms.value);
+        let formRegex = RegExp(`documentation-(\\d+)-`, 'g');
+
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `documentation-${formNum}-`);
+        container.appendChild(newForm);
+        addDeleteButtonListeners();
+        manageDeleteButtons();
+        updateTotalForms();
+      });
+
+      function addDeleteButtonListeners() {
+        document.querySelectorAll('.delete-formset').forEach((button) => {
+          button.addEventListener('click', function () {
+            this.parentNode.remove();
+            updateTotalForms();
+            manageDeleteButtons();
+          });
+        });
+      }
+
+      function updateTotalForms() {
+        const formsetRows = container.querySelectorAll('.formset-row-unstyled').length;
+        totalForms.value = formsetRows.toString();
+      }
+
+      addDeleteButtonListeners();
+      updateTotalForms();
+    });
+  </script>
+{% endblock scripts %}

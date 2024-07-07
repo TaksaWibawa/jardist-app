@@ -31,7 +31,7 @@
         <div class="pk-actions">
           <a href={% url 'update_bast' pk.id %} class="btn action__button action__button--bast">BAST I</a>
           <a href={% url 'edit_pk' pk.id %} class="btn action__button action__button--edit">Ubah PK</a>
-          <a href="#" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
+          <a href="{% url 'create_documentation' %}?pk={{ pk.id }}" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
         </div>
         <a href={% url 'list_pk' %} class="btn action__button action__button--back">Kembali ke Daftar PK</a>
       </div>

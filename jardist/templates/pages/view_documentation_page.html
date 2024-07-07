@@ -1,0 +1,164 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load os %}
+
+{% block page_title %}Lihat Foto Dokumentasi{% endblock page_title %}
+{% block title %}LIHAT FOTO DOKUMENTASI{% endblock title %}
+
+{% block content %}
+<section class="view-archive-page">
+  <div class="content gap-3">
+    <div class="filter row">
+      <form method="get" class="px-0 row">
+        <div class="col-md-6 mb-3">
+          <select name="pk" onchange="this.form.submit()" class="form-select form-select-lg">
+            <option value="">Pilih No. PK</option>
+            {% for pk in pks %}
+                <option value="{{ pk.pk_number }}" {% if pk.pk_number == selected_pk_number %}selected{% endif %}>{{ pk.pk_number }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <select name="task" onchange="this.form.submit()" class="form-select form-select-lg">
+            <option value="">Pilih Pekerjaan</option>
+            {% for task in tasks %}
+                <option value="{{ task.task_name }}" {% if task.task_name == selected_task_name %}selected{% endif %}>{{ task.task_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+
+    <div class="documents">
+      {% for task, documentation, photos in tasks_with_documentations_and_photos %}
+        <h2>{{ task.task_name }}</h2>
+        <div class="document-row">
+          {% for photo in photos %}
+          <div class="document-img">
+            <img src="{{ photo.photo.url }}" alt="Photo Document Image">
+          </div>
+          <div class="document-description">
+            <h3>{{ photo.description }}</h3>
+            <div class="d-flex gap-2 mx-md-0 mx-auto">
+              <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#universalModal" data-image-url="{{ photo.photo.url }}">Lihat Foto</a>
+              <a href="{{ photo.photo.url }}" download class="btn btn-dark">Download</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    
+      {% if not tasks_with_documentations_and_photos %}
+        <div class="alert alert-info" role="alert">
+          Belum ada dokumentasi yang tersedia.
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="form-actions flex-column gap-3">
+      <div class="d-flex justify-content-center gap-3 w-100">
+        {% if request.GET.pk %}
+          <a href="{% url 'create_documentation' %}?pk={{ request.GET.pk }}" class="btn btn-secondary">Tambah Dokumentasi</a>
+        {% else %}
+          <a href="{% url 'create_documentation' %}" class="btn btn-secondary">Tambah Dokumentasi</a>
+        {% endif %}
+        <a href="{% url 'list_pk' %}" class="btn btn-primary">Kembali</a>
+      </div>
+      {% if tasks_with_documentations_and_photos %}
+        <button id="downloadAll" class="btn btn-dark">Download Semua</button>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="universalModal" tabindex="-1" aria-labelledby="universalModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="universalModalLabel">Lihat File</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <img src="" alt="Document Image" class="img-fluid" id="modalImage">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const modalImage = document.querySelector('#modalImage');
+      const myModal = new bootstrap.Modal(document.getElementById('universalModal'), {
+        keyboard: false
+      });
+    
+      const viewButtons = document.querySelectorAll('[data-bs-target="#universalModal"]');
+      viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const imageUrl = this.getAttribute('data-image-url');
+          modalImage.src = imageUrl;
+          myModal.show();
+        });
+      });
+    
+      function isSafari() {
+        return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      }
+    
+      if (isSafari()) {
+        document.querySelectorAll('a[download]').forEach(function(downloadLink) {
+          downloadLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank');
+          });
+        });
+      }
+    
+      document.querySelector('#downloadAll').addEventListener('click', function() {
+        const documentLinks = document.querySelectorAll('a[download]');
+        const urls = Array.from(documentLinks).map(link => link.getAttribute('href'));
+    
+        if (urls.length === 1) {
+          documentLinks[0].click();
+          return;
+        }
+    
+        downloadDocuments(urls);
+      });
+    });
+    
+    function downloadDocuments(urls) {
+      fetch('{% url "download_documents" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({urls: urls})
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const downloadUrl = URL.createObjectURL(blob);
+        const tempLink = document.createElement('a');
+        tempLink.href = downloadUrl;
+        tempLink.setAttribute('download', 'documents.zip');
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+      })
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
+    }
+    </script>
+{% endblock %}

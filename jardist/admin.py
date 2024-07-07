@@ -6,7 +6,7 @@ from jardist.forms.admin_form import UserAdminForm
 
 from jardist.models.contract_models import SPK, PK, PKStatusAudit, PKArchiveDocument, Document
 from jardist.models.role_models import Department, Role
-from jardist.models.task_models import Task, TaskType, SubTask, SubTaskType, SubTaskMaterial, TemplateRAB
+from jardist.models.task_models import Task, TaskType, SubTask, SubTaskType, SubTaskMaterial, TemplateRAB, TaskDocumentation, TaskDocumentationPhoto
 from jardist.models.user_models import UserProfile
 from jardist.models.material_models import Material, MaterialCategory
 
@@ -168,6 +168,19 @@ class SubTaskAdmin(AuditableAdmin):
 class TemplateRABAdmin(AuditableAdmin):
     list_display = ['task_type', 'rab'] + AuditableAdmin.list_display
 
+class TaskDocumentationPhotoInline(admin.TabularInline):
+    model = TaskDocumentationPhoto
+    extra = 1
+
+class TaskDocumentationAdmin(AuditableAdmin):
+    list_display = ['get_task_pk', 'task', 'location'] + AuditableAdmin.list_display
+    inlines = [TaskDocumentationPhotoInline]
+
+    def get_task_pk(self, obj):
+        return obj.task.pk_instance.pk_number
+    get_task_pk.admin_order_field = 'task__pk_instance__pk_number'
+    get_task_pk.short_description = 'No. PK'
+
 # Unregister Default User and Group Admin
 admin.site.unregister(User)
 admin.site.unregister(Group)
@@ -193,3 +206,4 @@ admin.site.register(SubTaskType, SubTaskTypeAdmin)
 admin.site.register(Task, TaskAdmin)
 admin.site.register(SubTask, SubTaskAdmin)
 admin.site.register(TemplateRAB, TemplateRABAdmin)
+admin.site.register(TaskDocumentation, TaskDocumentationAdmin)

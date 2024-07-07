@@ -81,7 +81,6 @@ class PK(Auditable):
             })
         
     def save(self, *args, **kwargs):
-        # Check if the instance is being updated
         if not self._state.adding:
             with transaction.atomic():
                 old_pk = PK.objects.select_for_update().get(pk=self.pk)
@@ -125,9 +124,9 @@ class PKArchiveDocument(Auditable):
 
 class Document(Auditable):
     pk_archive = models.ForeignKey(PKArchiveDocument, on_delete=models.CASCADE, related_name='documents', verbose_name=_('Dokumen Arsip PK'))
-    pickup_file = models.FileField(upload_to='static/jardist/files/pk_archive/pickup/', verbose_name=_('File Dokumen Pengambilan Barang'))
+    pickup_file = models.FileField(upload_to='archive/pickup/', verbose_name=_('File Dokumen Pengambilan Barang'))
     pickup_description = models.CharField(max_length=255, verbose_name=_('Deskripsi Dokumen Pengambilan Barang'))
-    proof_file = models.FileField(upload_to='static/jardist/files/pk_archive/proof/', verbose_name=_('File Bukti Pengambilan Barang'), null=True, blank=True)
+    proof_file = models.FileField(upload_to='archive/proof/', verbose_name=_('File Bukti Pengambilan Barang'), null=True, blank=True)
     proof_description = models.CharField(max_length=255, verbose_name=_('Deskripsi Bukti Pengambilan Barang'), null=True, blank=True)
 
     class Meta:

@@ -109,3 +109,8 @@ def create_subtask_material_formsets(request, task, sort_by):
             formsets_data.extend(material_formsets)
 
     return formsets, formsets_data
+
+def get_task_data(request):
+    pk = request.GET.get('pk')
+    tasks = Task.objects.filter(pk_instance=pk).values('id', 'task_name')
+    return JsonResponse(list(tasks), safe=False)
