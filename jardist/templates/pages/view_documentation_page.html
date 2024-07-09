@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load os %}
+{% load auth %}
 
 {% block page_title %}Lihat Foto Dokumentasi{% endblock page_title %}
 {% block title %}LIHAT FOTO DOKUMENTASI{% endblock title %}
@@ -8,7 +9,7 @@
 {% block content %}
 <section class="view-archive-page">
   <div class="content gap-3">
-    <div class="filter row">
+    <div class="filter row justify-content-center">
       <form method="get" class="px-0 row">
         <div class="col-md-6 mb-3">
           <select name="pk" onchange="this.form.submit()" class="form-select form-select-lg">
@@ -19,7 +20,7 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <select name="task" onchange="this.form.submit()" class="form-select form-select-lg">
+          <select name="task" onchange="this.form.submit()" class="form-select form-select-lg" {% if not selected_pk_number %}disabled{% endif %}>
             <option value="">Pilih Pekerjaan</option>
             {% for task in tasks %}
                 <option value="{{ task.task_name }}" {% if task.task_name == selected_task_name %}selected{% endif %}>{{ task.task_name }}</option>
@@ -57,10 +58,12 @@
 
     <div class="form-actions flex-column gap-3">
       <div class="d-flex justify-content-center gap-3 w-100">
-        {% if request.GET.pk %}
-          <a href="{% url 'create_documentation' %}?pk={{ request.GET.pk }}" class="btn btn-secondary">Tambah Dokumentasi</a>
-        {% else %}
-          <a href="{% url 'create_documentation' %}" class="btn btn-secondary">Tambah Dokumentasi</a>
+        {% if user|has_groups:"Staff,Pengawas" %}
+          {% if request.GET.pk %}
+            <a href="{% url 'create_documentation' %}?pk={{ request.GET.pk }}" class="btn btn-secondary">Tambah Dokumentasi</a>
+          {% else %}
+            <a href="{% url 'create_documentation' %}" class="btn btn-secondary">Tambah Dokumentasi</a>
+          {% endif %}
         {% endif %}
         <a href="{% url 'list_pk' %}" class="btn btn-primary">Kembali</a>
       </div>

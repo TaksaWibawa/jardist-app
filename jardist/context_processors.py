@@ -1,4 +1,5 @@
 def navigations(request):
+    user = request.user
     NAV_ITEMS = [
         {
             "name": "HOME",
@@ -22,6 +23,16 @@ def navigations(request):
             ],
         },
     ]
+
+    # Filter NAV_ITEMS based on user group
+    if user.groups.filter(name='Direktur').exists():
+        NAV_ITEMS = [item for item in NAV_ITEMS if item['name'] == 'LIHAT DATA']
+    elif user.groups.filter(name='Pengawas').exists():
+        allowed_urls = ['list_pk', 'create_archive_document', 'create_documentation', 'view_archive_document', 'view_documentation']
+        NAV_ITEMS = [item for item in NAV_ITEMS if item.get('url') in allowed_urls or any(sub_item['url'] in allowed_urls for sub_item in item.get('sub_items', []))]
+        for item in NAV_ITEMS:
+            if 'sub_items' in item:
+                item['sub_items'] = [sub_item for sub_item in item['sub_items'] if sub_item['url'] in allowed_urls]
 
     current_url_name = request.resolver_match.url_name
     for item in NAV_ITEMS:

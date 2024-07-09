@@ -7,5 +7,5 @@ venv
 
 # Development
 .vscode/
-files/
+static
 media/

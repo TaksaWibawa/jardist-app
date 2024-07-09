@@ -6,7 +6,9 @@ from jardist.forms.material_form import MaterialForm
 from jardist.forms.sub_task_material_form import SubTaskMaterialFormSet
 from jardist.models.task_models import SubTaskMaterial
 from jardist.models.task_models import Task
+from jardist.decorators import login_and_group_required
 
+@login_and_group_required('Staff')
 def add_material(request, task_id, redirect_url, context='rab'):
     task = Task.objects.get(id=task_id)
     material_form = MaterialForm(request.POST or None, task=task, context=context)

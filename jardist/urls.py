@@ -1,10 +1,12 @@
 from django.urls import path
 from jardist.services import pk_service, task_service
 from jardist.utils import download_all_documents
-from jardist.views import spk_view, pk_view, task_view
+from jardist.views import spk_view, pk_view, task_view, auth_view
 
 urlpatterns = [
   path('', pk_view.ListPKPage, name='list_pk'),
+  path('login', auth_view.LoginPage, name='login'),
+  path('logout', auth_view.Logout, name='logout'),
 
   path('spk/create', spk_view.CreateSPKPage, name='create_spk'),
   path('spk/edit/<uuid:spk_id>', spk_view.EditSPKPage, name='edit_spk'),

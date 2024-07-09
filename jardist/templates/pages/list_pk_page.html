@@ -2,6 +2,7 @@
 {% load static %}
 {% load styles %}
 {% load formatting %}
+{% load auth %}
 
 {% block page_title %}List PK {% endblock page_title %}
 {% block title %}LIST PK{% endblock title %}
@@ -72,12 +73,14 @@
                                 <ul class="dropdown-menu" style="z-index: 1050;">
                                   <li class="dropdown-header text-left">Navigasi</li>
                                   <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
-                                  <li><a class="dropdown-item" href="{% url 'update_bast' pk.id %}">BAST I</a></li>
-                                  <li><hr class="dropdown-divider"></li>
-                                  <li class="dropdown-header text-left">Ubah Status</li>
-                                  <li><button class="dropdown-item status-change {% if pk.status == 'PEMBAYARAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMBAYARAN' %}disabled{% endif %} data-value="ktk_done" data-pk="{{ pk.pk_number }}">KTK Selesai</button></li>
-                                  <li><button class="dropdown-item status-change {% if pk.status == 'PEMELIHARAAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMELIHARAAN' %}disabled{% endif %} data-value="payment" data-pk="{{ pk.pk_number }}">Terbayar</button></li>
-                                  <li><button class="dropdown-item status-change {% if pk.status == 'SELESAI' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'SELESAI' %}disabled{% endif %} data-value="pk_done" data-pk="{{ pk.pk_number }}">Selesai</button></li>
+                                  {% if user|has_groups:"Staff" %}
+                                    <li><a class="dropdown-item" href="{% url 'update_bast' pk.id %}">BAST I</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="dropdown-header text-left">Ubah Status</li>
+                                    <li><button class="dropdown-item status-change {% if pk.status == 'PEMBAYARAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMBAYARAN' %}disabled{% endif %} data-value="ktk_done" data-pk="{{ pk.pk_number }}">KTK Selesai</button></li>
+                                    <li><button class="dropdown-item status-change {% if pk.status == 'PEMELIHARAAN' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'PEMELIHARAAN' %}disabled{% endif %} data-value="payment" data-pk="{{ pk.pk_number }}">Terbayar</button></li>
+                                    <li><button class="dropdown-item status-change {% if pk.status == 'SELESAI' %}disabled disabled-cursor bg-primary text-light{% endif %}" {% if pk.status == 'SELESAI' %}disabled{% endif %} data-value="pk_done" data-pk="{{ pk.pk_number }}">Selesai</button></li>
+                                  {% endif %}
                                 </ul>
                               </div>
                             </form>
@@ -106,7 +109,9 @@
                             <ul class="dropdown-menu" style="z-index: 1050;">
                               <li class="dropdown-header text-left">Navigasi</li>
                               <li><a class="dropdown-item" href="{% url 'view_pk' pk.id %}">Lihat PK</a></li>
-                              <li><a class="dropdown-item" href="{% url 'create_task' %}">Tambah Pekerjaan</a></li>
+                              {% if user|has_groups:"Staff" %}
+                                <li><a class="dropdown-item" href="{% url 'create_task' %}">Tambah Pekerjaan</a></li>
+                              {% endif %}
                             </ul>
                           </div>
                         </form>

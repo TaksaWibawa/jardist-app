@@ -2,6 +2,7 @@
 {% load static %}
 {% load formatting %}
 {% load numbering %}
+{% load auth %}
 
 {% block page_title %}View PK{% endblock page_title %}
 {% block title %}Lihat PK{% endblock title %}
@@ -29,9 +30,13 @@
           </div>
         </div>
         <div class="pk-actions">
-          <a href={% url 'update_bast' pk.id %} class="btn action__button action__button--bast">BAST I</a>
-          <a href={% url 'edit_pk' pk.id %} class="btn action__button action__button--edit">Ubah PK</a>
-          <a href="{% url 'create_documentation' %}?pk={{ pk.id }}" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
+          {% if user|has_groups:"Staff" %}
+            <a href={% url 'update_bast' pk.id %} class="btn action__button action__button--bast">BAST I</a>
+            <a href={% url 'edit_pk' pk.id %} class="btn action__button action__button--edit">Ubah PK</a>
+          {% endif %}
+          {% if user|has_groups:"Staff,Pengawas" %}
+            <a href="{% url 'create_documentation' %}?pk={{ pk.id }}" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
+          {% endif %}
         </div>
         <a href={% url 'list_pk' %} class="btn action__button action__button--back">Kembali ke Daftar PK</a>
       </div>
@@ -128,8 +133,12 @@
           </div>
         {% endfor %}
         <div class="task-actions">
-          <a href={% url 'edit_task' task_data.task.id %} class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
-          <a href={% url 'update_realization_material' task_data.task.id %}  class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
+          {% if user|has_groups:"Staff" %}
+            <a href={% url 'edit_task' task_data.task.id %} class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
+          {% endif %}
+          {% if user|has_groups:"Pengawas" %}
+            <a href={% url 'update_realization_material' task_data.task.id %}  class="btn action__button action__button--realization">Realisasi Pekerjaan</a>
+          {% endif %}
         </article>
         <div class="pagination">
           {% if tasks_page.has_previous %}

@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load os %}
+{% load auth %}
 
 {% block page_title %}Lihat Arsip Dokumen{% endblock page_title %}
 {% block title %}LIHAT ARSIP DOKUMEN{% endblock title %}
@@ -82,10 +83,12 @@
 
     <div class="form-actions flex-column gap-3">
       <div class="d-flex justify-content-center gap-3 w-100">
-        {% if pk %}
-          <a href="{% url 'create_archive_document' %}?pk={{ pk }}" class="btn btn-secondary">Tambah Arsip</a>
-        {% else %}
-          <a href="{% url 'create_archive_document' %}" class="btn btn-secondary">Tambah Arsip</a>
+        {% if user|has_groups:"Staff,Pengawas" %}
+          {% if pk %}
+            <a href="{% url 'create_archive_document' %}?pk={{ pk }}" class="btn btn-secondary">Tambah Arsip</a>
+          {% else %}
+            <a href="{% url 'create_archive_document' %}" class="btn btn-secondary">Tambah Arsip</a>
+          {% endif %}
         {% endif %}
         <a href="{% url 'list_pk' %}" class="btn btn-primary">Kembali</a>
       </div>

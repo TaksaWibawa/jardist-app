@@ -2,9 +2,11 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from jardist.decorators import login_and_group_required
 from jardist.forms.spk_form import SPKForm
 from jardist.models.contract_models import SPK, PK
 
+@login_and_group_required('Staff')
 def CreateSPKPage(request):
     form = SPKForm()
 
@@ -29,6 +31,7 @@ def CreateSPKPage(request):
 
     return render(request, 'pages/create_spk_page.html', context)
 
+@login_and_group_required('Staff')
 def EditSPKPage(request, spk_id):
     spk = SPK.objects.get(id=spk_id)
     form = SPKForm(request.POST or None, instance=spk)

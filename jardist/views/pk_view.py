@@ -9,7 +9,9 @@ from jardist.forms.pk_form import PKForm
 from jardist.models.contract_models import SPK, PK, PKArchiveDocument
 from jardist.models.task_models import Task
 from jardist.services.task_service import get_sub_tasks_materials_by_category
+from jardist.decorators import login_and_group_required
 
+@login_and_group_required('Staff')
 def CreatePKPage(request):
     spk_id = request.GET.get('spk_id', None)
     is_create_page = True
@@ -38,6 +40,7 @@ def CreatePKPage(request):
 
     return render(request, 'pages/create_pk_page.html', context)
 
+@login_and_group_required('Staff')
 def EditPKPage(request, pk_id):
     pk = PK.objects.get(id=pk_id)
     form = PKForm(request.POST or None, instance=pk, is_create_page=False)
@@ -54,6 +57,7 @@ def EditPKPage(request, pk_id):
 
     return render(request, 'pages/edit_pk_page.html', context)
 
+@login_and_group_required('Staff')
 def UpdateBASTPage(request, pk_id):
     pk = PK.objects.get(id=pk_id)
     tasks = Task.objects.filter(pk_instance=pk).order_by('id')
@@ -75,6 +79,7 @@ def UpdateBASTPage(request, pk_id):
 
     return render(request, 'pages/update_bast_page.html', context)
 
+@login_and_group_required()
 def ViewPKPage(request, pk_id):
     pk = PK.objects.get(id=pk_id)
     tasks = Task.objects.filter(pk_instance=pk).prefetch_related('subtask_set__materials').order_by('id')
@@ -101,6 +106,7 @@ def ViewPKPage(request, pk_id):
     context = {'pk': pk, 'tasks_page_data': tasks_page_data, 'tasks_page': tasks_page}
     return render(request, 'pages/view_pk_page.html', context)
 
+@login_and_group_required()
 def ListPKPage(request):
     status_mapping = {
         'ktk_done': 'PEMBAYARAN',
@@ -134,6 +140,7 @@ def ListPKPage(request):
     context = {'pks': pks, 'spks': spks, 'selected_spk': selected_spk}
     return render(request, 'pages/list_pk_page.html', context)
 
+@login_and_group_required('Staff', 'Pengawas')
 def CreateArchiveDocumentPage(request):
     pk_number = request.GET.get('pk')
     pk_instance = PK.objects.get(pk_number=pk_number) if pk_number else None
@@ -161,6 +168,7 @@ def CreateArchiveDocumentPage(request):
     context = {'form': form, 'formset': formset, 'first_formset_empty': first_formset_empty}
     return render(request, 'pages/create_archive_page.html', context)
 
+@login_and_group_required('Staff', 'Pengawas', 'Direktur')
 def ViewArchiveDocumentPage(request):
     pks = PK.objects.all().order_by('pk_number')
     pk_number = request.GET.get('pk')

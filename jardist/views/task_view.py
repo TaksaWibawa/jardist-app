@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from jardist.decorators import login_and_group_required
 from jardist.forms.documentation_form import TaskDocumentationForm, TaskDocumentationPhotoFormSet
 from jardist.forms.material_form import MaterialForm
 from jardist.forms.task_form import TaskForm
@@ -9,6 +10,7 @@ from jardist.models.contract_models import PK
 from jardist.models.task_models import Task
 from jardist.services.task_service import create_subtask_material_formsets
 
+@login_and_group_required('Staff')
 def CreateTaskPage(request):
     pk_id = request.GET.get('pk_id', None)
     form = TaskForm(request.POST or None, request.FILES or None, request=request, is_create_page=True, pk_id=pk_id)
@@ -33,6 +35,7 @@ def CreateTaskPage(request):
     context = {'form': form}
     return render(request, 'pages/create_task_page.html', context)
 
+@login_and_group_required('Staff')
 def EditTaskPage(request, task_id):
     task = Task.objects.get(id=task_id)
     form = TaskForm(request.POST or None, request.FILES or None, instance=task, request=request, is_create_page=False)
@@ -52,6 +55,7 @@ def EditTaskPage(request, task_id):
     context = {'form': form, 'task': task}
     return render(request, 'pages/edit_task_page.html', context)
 
+@login_and_group_required('Staff')
 def EditTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='rab')
@@ -70,6 +74,7 @@ def EditTaskMaterialPage(request, task_id):
 
     return render(request, 'pages/edit_task_material_page.html', context)
 
+@login_and_group_required('Pengawas')
 def UpdateRealizationTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='realization')
@@ -87,6 +92,7 @@ def UpdateRealizationTaskMaterialPage(request, task_id):
     context = {'formsets': formsets, 'task': task, 'material_form': material_form}
     return render(request, 'pages/update_realization_task_material_page.html', context)
 
+@login_and_group_required('Staff', 'Pengawas')
 def CreateDocumentationPage(request):
     pk_id = request.GET.get('pk', None)
     pk_instance = PK.objects.get(id=pk_id) if pk_id else None
@@ -111,6 +117,7 @@ def CreateDocumentationPage(request):
 
     return render(request, 'pages/create_documentation_page.html', context)
 
+@login_and_group_required('Staff', 'Pengawas', 'Direktur')
 def ViewDocumentationPage(request):
     pk_number = request.GET.get('pk')
     task_name = request.GET.get('task')

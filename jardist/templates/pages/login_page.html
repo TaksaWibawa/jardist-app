@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}Login{% endblock %}
+    </title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %} {% bootstrap_javascript %}
+    {% load static %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'jardist/css/styles.css' %}"
+    />
+  </head>
+  <body>
+    <div class="container-fluid">
+      <main class="wrapper d-flex justify-content-center align-items-center">
+        <section class="login-wrapper">
+           <form method="post" class="bg-white p-4 rounded-3 w-100">
+             {% csrf_token %}
+             <h1 class="h3 mb-3 fw-bold text-center">Jardist App</h1>
+             
+             <div class="mb-3">
+               <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+               {{ form.username }}
+               {% for error in form.username.errors %}
+                 <div class="text-danger">{{ error }}</div>
+               {% endfor %}
+             </div>
+             
+             <div class="mb-3">
+               <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+               {{ form.password }}
+               {% for error in form.password.errors %}
+                 <div class="text-danger">{{ error }}</div>
+               {% endfor %}
+             </div>
+             
+             <button class="w-100 btn btn-primary" type="submit">Login</button>
+
+             {% if form.non_field_errors %}
+             <div class="alert alert-danger mt-3 text-center" role="alert">
+               {% for error in form.non_field_errors %}
+                 {{ error }}
+               {% endfor %}
+             </div>
+             {% endif %}
+           </form>
+        </section>
+      </main>
+      <div class="toast-container">
+        {% for message in messages %}
+          <div class="toast {{ message.tags }}"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true"
+               data-bs-autohide="true">
+            <div class="toast-body position-relative">
+              {{ message }}
+              <button type="button"
+                      class="btn-close position-absolute top-0 end-0 m-2"
+                      data-bs-dismiss="toast"
+                      aria-label="Close"></button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>

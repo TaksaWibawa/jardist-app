@@ -64,7 +64,7 @@
         <h5 class="offcanvas-title" id="drawerLabel">JARDIST MENU</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
-      <nav class="offcanvas-body d-flex flex-column justify-content-between h-75">
+      <nav class="offcanvas-body d-flex flex-column justify-content-between h-75 px-2">
         <div class="accordion" id="menuAccordion">
           {% for item in NAV_ITEMS %}
             {% if item.name != "HOME" %}
@@ -88,12 +88,40 @@
               {% endif %}
             {% endif %}
           {% endfor %}
+          {% if request.path != '/' %}
+            <button class="btn btn-outline-primary mb-2 w-100 mt-3" type="button" data-bs-dismiss="offcanvas" onclick="location.href='{% url 'list_pk' %}'">Kembali ke List PK</button>
+          {% endif %}
         </div>
-        {% if request.path != '/' %}
-          <button class="btn btn-primary mb-2 w-100 mt-3" type="button" data-bs-dismiss="offcanvas" onclick="location.href='{% url 'list_pk' %}'">Kembali ke List PK</button>
+        {% if user.is_authenticated %}
+          <div class="d-grid gap-2 mt-5">
+            <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#logoutModal">
+              Logout
+            </button>
+          </div>
         {% endif %}
       </nav>
     </aside>
+
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Logout</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Apakah Anda yakin ingin logout?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">Logout</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
   {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
