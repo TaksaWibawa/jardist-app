@@ -10,12 +10,12 @@ click==8.1.7
 colorama==0.4.6
 cryptography==42.0.8
 cssselect2==0.7.0
-Django==4.2
 django-appconf==1.0.6
 django-bootstrap-v5==1.0.11
 django-environ==0.11.2
 django-jazzmin==3.0.0
 django-modeladmin-reorder==0.3.1
+Django==4.2
 fontawesomefree==6.5.1
 html5lib==1.1
 idna==3.7
@@ -26,8 +26,8 @@ pandas==2.2.2
 pillow==10.3.0
 psycopg2==2.9.9
 pycparser==2.22
-pyHanko==0.25.0
 pyhanko-certvalidator==0.26.3
+pyHanko==0.25.0
 pypdf==4.2.0
 pypng==0.20220715.0
 python-bidi==0.4.2
@@ -49,3 +49,4 @@ tzlocal==5.2
 uritools==4.0.3
 urllib3==2.2.1
 webencodings==0.5.1
+XlsxWriter==3.2.0

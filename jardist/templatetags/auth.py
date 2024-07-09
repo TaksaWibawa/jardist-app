@@ -5,6 +5,9 @@ register = template.Library()
 
 @register.filter(name='has_groups')
 def has_groups(user, group_names):
+    if user.is_superuser:
+        return True
+
     group_list = group_names.split(',')
     groups = Group.objects.filter(name__in=group_list)
     return user.groups.filter(id__in=groups).exists()

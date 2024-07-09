@@ -246,7 +246,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .action__button {
-  width: 150px;
+  width: 175px;
   height: 50px;
   display: flex;
   justify-content: center;
@@ -268,6 +268,16 @@ h1, h2, h3, h4, h5, h6 {
 .action__button--bast:hover, .action__button--edit-task:hover {
   background-color: #0056b3;
   color: #fff;
+}
+
+.action__button--edit-material {
+  background-color: #ffc107;
+  color: white;
+}
+
+.action__button--edit-material:hover {
+  background-color: #d39e00;
+  color: white;
 }
 
 .action__button--edit, .action__button--realization {

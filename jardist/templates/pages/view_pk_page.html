@@ -37,6 +37,7 @@
           {% if user|has_groups:"Staff,Pengawas" %}
             <a href="{% url 'create_documentation' %}?pk={{ pk.id }}" class="btn action__button action__button--documentations">Tambah Dokumentasi</a>
           {% endif %}
+          <a href="{% url 'download_task_material_details' pk.id %}" class="btn btn-dark action__button">Download Laporan Realisasi</a>
         </div>
         <a href={% url 'list_pk' %} class="btn action__button action__button--back">Kembali ke Daftar PK</a>
       </div>
@@ -134,6 +135,7 @@
         {% endfor %}
         <div class="task-actions">
           {% if user|has_groups:"Staff" %}
+            <a href={% url 'edit_task_material' task_data.task.id %} class="btn action__button action__button--edit-material">Ubah Material</a>
             <a href={% url 'edit_task' task_data.task.id %} class="btn action__button action__button--edit-task">Ubah Pekerjaan</a>
           {% endif %}
           {% if user|has_groups:"Pengawas" %}
