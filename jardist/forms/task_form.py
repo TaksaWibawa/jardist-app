@@ -6,7 +6,7 @@ from jardist.models.material_models import Material, MaterialCategory
 from jardist.models.task_models import SubTask, SubTaskType, SubTaskMaterial, TemplateRAB
 from jardist.models.task_models import Task, TaskType
 from jardist.utils import clean_decimal_field
-import pandas as pd
+import csv
 
 class TaskForm(forms.ModelForm):
     pk_instance = forms.ModelChoiceField(queryset=PK.objects.all(), empty_label='Pilih No. PK', widget=forms.Select(attrs={'class': 'form-select', 'id': 'pk_instance'}), label='No. PK')
@@ -58,17 +58,30 @@ class TaskForm(forms.ModelForm):
 
         if not rab:
             self.add_error('rab', "File RAB tidak boleh kosong.")
-        elif not rab.name.endswith('.csv'):
-            self.add_error('rab', "File RAB harus berformat CSV.")
+        elif not (rab.name.endswith('.csv') or rab.name.endswith('.txt')):
+            self.add_error('rab', "File RAB harus berformat CSV atau TXT.")
         else:
             rab.seek(0)
-            df = pd.read_csv(rab)
-            headers = df.columns.tolist()
+            sample = rab.read(1024).decode('utf-8')
+            rab.seek(0)
+            comma_count = sample.count(',')
+            semicolon_count = sample.count(';')
+
+            delimiter = ',' if comma_count > semicolon_count else ';'
+
+            reader = csv.reader(rab.read().decode('utf-8').splitlines(), delimiter=delimiter, quotechar='"')
+            headers = next(reader)
             required_headers = TASK_FORM_FIELDS
+
             if headers != required_headers:
+                print(headers,delimiter)
                 self.add_error('rab', "File RAB tidak sesuai dengan format RAB.")
             else:
-                task_type_found = any(df['Jenis Pekerjaan'].str.lower() == task_type.name.lower())
+                task_type_found = False
+                for row in reader:
+                    if row[headers.index('Jenis Pekerjaan')].strip().lower() == task_type.name.lower():
+                        task_type_found = True
+                        break
                 if not task_type_found:
                     self.add_error('task_type', 'Jenis Pekerjaan tidak ditemukan dalam file RAB')
 
@@ -79,7 +92,14 @@ class TaskForm(forms.ModelForm):
     def save(self, commit=True):
         # if any fields are not changed, return back the instance
         if not self.has_changed() and not self.is_create_page:
-            return self.instance
+            if self.instance is not None:
+                return self.instance
+            else:
+                # Handle the case where self.instance is None
+                instance = super().save(commit=False)
+                if commit:
+                    instance.save()
+                return instance
 
         instance = super().save(commit=False)
 
@@ -92,8 +112,16 @@ class TaskForm(forms.ModelForm):
                 template_file = TemplateRAB.objects.filter(task_type=task_type).first()
                 if template_file:
                     instance.rab = template_file.rab
-                    df = pd.read_csv(instance.rab)
-                    reader = df.itertuples(index=False)
+                    instance.rab.seek(0)
+                    sample = instance.rab.read(1024).decode('utf-8')
+                    instance.rab.seek(0)
+                    comma_count = sample.count(',')
+                    semicolon_count = sample.count(';')
+
+                    delimiter = ',' if comma_count > semicolon_count else ';'
+                    
+                    reader = csv.reader(instance.rab.read().decode('utf-8').splitlines(), delimiter=delimiter, quotechar='"')
+                    headers = next(reader)
                 else:
                     self.add_error('task_type', 'Template RAB tidak ditemukan')
                     return None
@@ -101,8 +129,15 @@ class TaskForm(forms.ModelForm):
                 rab = self.cleaned_data.get('rab')
                 if rab:
                     rab.seek(0)
-                    df = pd.read_csv(rab)
-                    reader = df.itertuples(index=False)
+                    sample = rab.read(1024).decode('utf-8')
+                    rab.seek(0)
+                    comma_count = sample.count(',')
+                    semicolon_count = sample.count(';')
+
+                    delimiter = ',' if comma_count > semicolon_count else ';'
+
+                    reader = csv.reader(rab.read().decode('utf-8').splitlines(), delimiter=delimiter, quotechar='"')
+                    headers = next(reader)
                 else:
                     self.add_error('rab', 'File RAB tidak ditemukan')
                     return None
@@ -110,7 +145,8 @@ class TaskForm(forms.ModelForm):
             # if rab file is changed and not on create page, delete all sub tasks
             if not self.is_create_page and 'rab' in self.changed_data:
                 SubTask.objects.filter(task=instance).delete()
-            else:
+
+            if commit:
                 instance.save()
 
             # if rab file is changed or on create page, create sub tasks and sub task materials
@@ -163,8 +199,8 @@ class TaskForm(forms.ModelForm):
                 SubTaskMaterial.objects.bulk_create(sub_task_materials_to_create)
             
         except Exception as e:
-            self.add_error(None, f'Error processing CSV: {str(e)}')
+            self.add_error('rab', 'Error reading RAB file: ' + str(e))
+            transaction.set_rollback(True)
             return None
-
-        instance.save()
+        
         return instance

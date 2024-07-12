@@ -287,6 +287,8 @@ def download_pk_material_details(request, pk_id):
         worksheet.set_column('H:H', 15)
         worksheet.set_column('I:I', 10)
 
+        worksheet.freeze_panes(11, 0)
+
         task_counter += 1
 
     workbook.close()

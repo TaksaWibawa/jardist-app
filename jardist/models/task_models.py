@@ -76,13 +76,22 @@ class Task(Auditable):
         if self.rab:
             if not self.rab.name.endswith('.csv'):
                 raise ValidationError("File RAB harus berformat CSV.")
+    
+            try:
+                self.rab.seek(0)
+                sample = self.rab.read(1024).decode('utf-8')
+                self.rab.seek(0)
+                comma_count = sample.count(',')
+                semicolon_count = sample.count(';')
 
-            self.rab.seek(0)
-            reader = csv.reader(self.rab.read().decode('utf-8').splitlines())
-            headers = next(reader, None)
-            required_headers = TASK_FORM_FIELDS
-            if headers != required_headers:
-                raise ValidationError("File RAB tidak sesuai dengan template.")
+                delimiter = ',' if comma_count > semicolon_count else ';'
+                reader = csv.reader(self.rab.read().decode('utf-8').splitlines(), delimiter=delimiter, quotechar='"')
+                headers = next(reader, None)
+                required_headers = TASK_FORM_FIELDS
+                if headers != required_headers:
+                    raise ValidationError("File RAB tidak sesuai dengan template.")
+            except Exception as e:
+                raise ValidationError(f"Error reading RAB file: {str(e)}")
         
     def __str__(self):
         return self.task_name

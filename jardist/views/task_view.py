@@ -17,7 +17,7 @@ def CreateTaskPage(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            task = form.save(commit=False)
+            task = form.save(commit=True)
             if task is not None:
                 task.save()
                 messages.success(request, 'Data berhasil disimpan')
