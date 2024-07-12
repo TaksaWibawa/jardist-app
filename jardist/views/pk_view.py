@@ -148,16 +148,15 @@ def CreateArchiveDocumentPage(request):
     formset = DocumentFormSet(request.POST or None, request.FILES or None, prefix='document')
     first_formset_empty = False
 
-
     if request.method == 'POST' and form.is_valid():
-        pk_archive_instance = PKArchiveDocument(pk_instance=form.cleaned_data['pk_instance'])
+        pk_instance = form.cleaned_data['pk_instance']
+        pk_archive_instance, created = PKArchiveDocument.objects.get_or_create(pk_instance=pk_instance)
         first_form = formset.forms[0]
         if formset.is_valid():
             if not first_form.cleaned_data.get('pickup_file'):
                 messages.error(request, 'Isi Field Pertama!')
                 first_formset_empty = True
             else:
-                pk_archive_instance.save()
                 formset.instance = pk_archive_instance
                 formset.save()
                 messages.success(request, 'Data berhasil disimpan')

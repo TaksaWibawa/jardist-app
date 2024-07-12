@@ -7,6 +7,7 @@ class TaskDocumentationForm(forms.Form):
     pk_instance = forms.ModelChoiceField(queryset=PK.objects.all(), label='No. PK', widget=forms.Select(attrs={'class': 'form-select', 'id': 'pk_instance'}))
     task_instance = forms.ModelChoiceField(queryset=Task.objects.none(), label='Nama Pekerjaan', widget=forms.Select(attrs={'class': 'form-select', 'id': 'task_instance'}))
     location = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Link Titik GMaps', 'id': 'location'}), label='Lokasi Pengerjaan')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['pk_instance'].empty_label = 'Pilih No. PK'
@@ -29,10 +30,18 @@ class TaskDocumentationForm(forms.Form):
             self.add_error('task_instance', 'The selected task does not belong to the chosen PK.')
 
     def save(self):
-        task_documentation = TaskDocumentation.objects.create(
-            task=self.cleaned_data['task_instance'],
-            location=self.cleaned_data['location']
+        task_instance = self.cleaned_data['task_instance']
+        location = self.cleaned_data['location']
+
+        task_documentation, created = TaskDocumentation.objects.get_or_create(
+            task=task_instance,
+            defaults={'location': location}
         )
+
+        if not created:
+            task_documentation.location = location
+            task_documentation.save()
+
         return task_documentation
 
 class TaskDocumentationPhotoForm(forms.ModelForm):

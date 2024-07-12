@@ -118,6 +118,8 @@ class PKStatusAuditAdmin(AuditableAdmin):
 class DocumentInline(admin.TabularInline):
     model = Document
     extra = 1
+    readonly_fields = ('created_at',)
+    fields = ('pickup_file', 'pickup_description', 'proof_file', 'proof_description', 'created_at')
 
 class PkArchiveDocumentAdmin(admin.ModelAdmin):
     list_display = ['pk_instance', 'documents_count'] + AuditableAdmin.list_display

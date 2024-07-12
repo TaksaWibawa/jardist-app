@@ -93,6 +93,7 @@
             $('#task_instance').select2('destroy').empty().prop('disabled', false);
             
             const taskField = document.getElementById('task_instance');
+            taskField.appendChild(new Option('Pilih Pekerjaan', '', false, false));
             data.forEach(task => {
               const option = new Option(task.task_name, task.id, false, false);
               taskField.appendChild(option);
@@ -113,6 +114,10 @@
           $('#task_instance').select2({
             theme: "bootstrap-5"
           });
+          document.getElementById('location').value = '';
+          const url = new URL(window.location.href);
+          url.searchParams.delete('pk');
+          window.history.pushState({}, '', url);
         }
       }
     
@@ -178,6 +183,22 @@
 
       addDeleteButtonListeners();
       updateTotalForms();
+
+      $('#task_instance').on('select2:select', function (e) {
+        const taskId = e.params.data.id;
+        if (taskId) {
+          fetch(`{% url 'get_task_documentation' %}?task_id=${taskId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.length > 0 && data[0].location) {
+              document.getElementById('location').value = data[0].location;
+            } else {
+              document.getElementById('location').value = '';
+            }
+          })
+          .catch(error => console.error('Error fetching task documentation:', error));
+        }
+      });
     });
   </script>
 {% endblock scripts %}

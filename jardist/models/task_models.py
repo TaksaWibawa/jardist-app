@@ -153,6 +153,7 @@ class TaskDocumentation(Auditable):
     class Meta:
         verbose_name = 'Dokumentasi Pekerjaan'
         verbose_name_plural = 'Dokumentasi Pekerjaan'
+        unique_together = ('task', 'location')
 
     def __str__(self):
         return f"{self.task.task_name} - {self.location}"

@@ -6,7 +6,7 @@ from itertools import groupby
 from jardist.decorators import login_and_group_required
 from jardist.forms.material_form import MaterialForm
 from jardist.forms.sub_task_material_form import SubTaskMaterialFormSet
-from jardist.models.task_models import Task, SubTask, SubTaskMaterial
+from jardist.models.task_models import Task, SubTask, SubTaskMaterial, TaskDocumentation
 from jardist.utils import int_to_roman
 import xlsxwriter
 
@@ -293,3 +293,10 @@ def download_pk_material_details(request, pk_id):
 
     workbook.close()
     return response
+
+# it will only fetch one instance task documentation which have one location and multiple documentation
+@login_and_group_required()
+def get_task_documentation(request):
+    task_id = request.GET.get('task_id')
+    task_documentations = TaskDocumentation.objects.filter(task_id=task_id).values('id', 'location', 'photos')
+    return JsonResponse(list(task_documentations), safe=False)
