@@ -704,6 +704,16 @@ h1, h2, h3, h4, h5, h6 {
   width: 50%;
 }
 
+.material-text {
+  color: #0056b3;
+}
+
+.material-text:hover {
+  color: #003c7b;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 768px) {
   .wrapper {
     padding-inline: 1rem;

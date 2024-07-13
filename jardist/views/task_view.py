@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from jardist.decorators import login_and_group_required
 from jardist.forms.documentation_form import TaskDocumentationForm, TaskDocumentationPhotoFormSet
 from jardist.forms.material_form import MaterialForm
 from jardist.forms.task_form import TaskForm
 from jardist.models.contract_models import PK
-from jardist.models.task_models import Task
+from jardist.models.task_models import Task, SubTaskMaterial
 from jardist.services.task_service import create_subtask_material_formsets
 
 @login_and_group_required('Staff')
@@ -56,12 +56,27 @@ def EditTaskPage(request, task_id):
     return render(request, 'pages/edit_task_page.html', context)
 
 @login_and_group_required('Staff')
-def EditTaskMaterialPage(request, task_id):
+def EditTaskMaterialPage(request, task_id, material_id=None):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='rab')
-    material_form = MaterialForm(request.POST or None, task=task, context='rab')
+
+    if material_id:
+        material = get_object_or_404(SubTaskMaterial, id=material_id, subtask__task=task)
+    else:
+        material = None
+
+    material_form = MaterialForm(request.POST or None, request=request, instance=material, task=task, context='rab')
 
     if request.method == 'POST':
+        if material_form.is_valid():
+            material = material_form.save(commit=False)
+            material.task = task
+            material.save()
+            messages.success(request, 'Material berhasil disimpan')
+            return redirect('edit_task', task_id=task.id)
+        else:
+            messages.error(request, 'Material gagal disimpan')
+
         if all(formset.is_valid() for material, formset in formsets_data):
             for material, formset in formsets_data:
                 formset.save()
@@ -69,8 +84,8 @@ def EditTaskMaterialPage(request, task_id):
             return redirect('edit_task', task_id=task.id)
         else:
             messages.error(request, 'Data gagal disimpan')
-        
-    context = {'formsets': formsets, 'task': task, 'material_form': material_form}
+
+    context = {'formsets': formsets, 'task': task, 'material_form': material_form, 'material': material}
 
     return render(request, 'pages/edit_task_material_page.html', context)
 
@@ -78,7 +93,7 @@ def EditTaskMaterialPage(request, task_id):
 def UpdateRealizationTaskMaterialPage(request, task_id):
     task = Task.objects.get(id=task_id)
     formsets, formsets_data = create_subtask_material_formsets(request, task, sort_by='realization')
-    material_form = MaterialForm(request.POST or None, task=task, context='realization')
+    material_form = MaterialForm(request.POST or None, request=request, task=task, context='realization')
 
     if request.method == 'POST':
         if all(formset.is_valid() for material, formset in formsets_data):

@@ -12,7 +12,7 @@ import xlsxwriter
 
 def add_material(request, task_id, redirect_url, context='rab'):
     task = Task.objects.get(id=task_id)
-    material_form = MaterialForm(request.POST or None, task=task, context=context)
+    material_form = MaterialForm(request.POST or None, request=request, task=task, context=context)
 
     if request.method == 'POST':
         if material_form.is_valid():
@@ -294,9 +294,15 @@ def download_pk_material_details(request, pk_id):
     workbook.close()
     return response
 
-# it will only fetch one instance task documentation which have one location and multiple documentation
 @login_and_group_required()
 def get_task_documentation(request):
     task_id = request.GET.get('task_id')
     task_documentations = TaskDocumentation.objects.filter(task_id=task_id).values('id', 'location', 'photos')
     return JsonResponse(list(task_documentations), safe=False)
+
+@login_and_group_required()
+def get_subtask_material(request):
+    subtask_id = request.GET.get('subtask_id')
+    material_id = request.GET.get('material_id')
+    subtask_material = SubTaskMaterial.objects.filter(subtask_id=subtask_id, material_id=material_id).values('id', 'subtask', 'material__name', 'material__unit', 'category', 'material_price', 'labor_price', 'rab_client_volume', 'rab_contractor_volume', 'realization_client_volume', 'realization_contractor_volume')
+    return JsonResponse(list(subtask_material), safe=False)

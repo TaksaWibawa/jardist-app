@@ -34,4 +34,5 @@ urlpatterns = [
   path('api/download-all-documents', download_all_documents, name='download_documents'),
   path('api/download_task_material_details/<uuid:pk_id>', task_service.download_pk_material_details, name='download_task_material_details'),
   path('api/get_task_documentation', task_service.get_task_documentation, name='get_task_documentation'),
+  path('api/get_task_material', task_service.get_subtask_material, name='get_task_material'),
 ]

@@ -35,6 +35,8 @@ class UserProfileInline(admin.StackedInline):
     verbose_name_plural = 'Profil Pengguna'
     fk_name = 'user'
 
+    fields = ['role', 'department', 'created_at', 'created_by', 'last_updated_at', 'last_updated_by']
+
 class UserAdmin(DefaultUserAdmin):
     inlines = (UserProfileInline,)
     add_form = UserAdminForm
@@ -173,10 +175,23 @@ class TemplateRABAdmin(AuditableAdmin):
 class TaskDocumentationPhotoInline(admin.TabularInline):
     model = TaskDocumentationPhoto
     extra = 1
+    readonly_fields = ['created_at']
+    fields = ['photo', 'description', 'created_at']
 
 class TaskDocumentationAdmin(AuditableAdmin):
-    list_display = ['get_task_pk', 'task', 'location'] + AuditableAdmin.list_display
+    list_display = ['get_task_pk', 'documentation_count', 'task', 'location'] + AuditableAdmin.list_display
     inlines = [TaskDocumentationPhotoInline]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).annotate(
+            documentation_count=Count('photos')
+        )
+        return queryset
+    
+    def documentation_count(self, obj):
+        return obj.documentation_count
+    documentation_count.admin_order_field = 'documentation_count'
+    documentation_count.short_description = 'Jumlah Dokumentasi'
 
     def get_task_pk(self, obj):
         return obj.task.pk_instance.pk_number

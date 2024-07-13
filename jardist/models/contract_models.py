@@ -113,7 +113,7 @@ class PKStatusAudit(Auditable):
         return f'{self.pk_instance.pk_number} - {self.old_status} -> {self.new_status}'
     
 class PKArchiveDocument(Auditable):
-    pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, related_name='archive_documents', verbose_name=_('Perintah Kerja'))
+    pk_instance = models.ForeignKey(PK, on_delete=models.CASCADE, related_name='archive_documents', verbose_name=_('No. PK'))
 
     class Meta:
         verbose_name = _('Dokumen Arsip PK')
