@@ -242,6 +242,14 @@
             form.unit.setAttribute('readonly', true);
         } else {
             materialIdInput.value = '';
+
+            document.getElementById('material-modalLabel').textContent = 'Tambah Material';
+            document.querySelector('.modal-footer button[type="submit"]').textContent = 'Tambah Material';
+
+            form.action = form.action
+            
+            form.name.removeAttribute('readonly');
+            form.unit.removeAttribute('readonly');
         }
 
         modal.show();
